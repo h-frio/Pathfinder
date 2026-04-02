@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIAP — Smart Intake Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --font-body:'Inter',sans-serif;
+  --text-xs:clamp(0.75rem,0.7rem + 0.2vw,0.8125rem);
+  --text-sm:clamp(0.8125rem,0.75rem + 0.3vw,0.9375rem);
+  --text-base:clamp(0.9375rem,0.9rem + 0.2vw,1rem);
+  --text-lg:clamp(1rem,0.95rem + 0.5vw,1.25rem);
+  --text-xl:clamp(1.25rem,1.1rem + 0.8vw,1.625rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--radius-full:9999px;
+  --transition:180ms cubic-bezier(0.16,1,0.3,1);
+}
+[data-theme="dark"] {
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface-2:#1c2333;
+  --surface-3:#21262d;
+  --border:rgba(255,255,255,0.1);
+  --border-focus:rgba(63,185,80,0.6);
+  --text:#e6edf3;
+  --text-muted:#8b949e;
+  --text-faint:#484f58;
+  --accent:#3fb950;
+  --accent-dim:rgba(63,185,80,0.15);
+  --accent-hover:#4ccc5e;
+  --error:#f85149;
+  --error-dim:rgba(248,81,73,0.15);
+  --shadow:0 4px 24px rgba(0,0,0,0.6);
+}
+[data-theme="light"] {
+  --bg:#f0f4f8;
+  --surface:#ffffff;
+  --surface-2:#f7f8fa;
+  --surface-3:#eef1f5;
+  --border:rgba(0,0,0,0.1);
+  --border-focus:rgba(1,105,111,0.5);
+  --text:#1a1e24;
+  --text-muted:#556071;
+  --text-faint:#99a3ae;
+  --accent:#01696f;
+  --accent-dim:rgba(1,105,111,0.1);
+  --accent-hover:#0c4e54;
+  --error:#c0392b;
+  --error-dim:rgba(192,57,43,0.1);
+  --shadow:0 4px 24px rgba(0,0,0,0.1);
+}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;scroll-behavior:smooth}
+body{font-family:var(--font-body);font-size:var(--text-base);color:var(--text);background:var(--bg);min-height:100dvh;line-height:1.6}
+input,textarea,select,button{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+/* ── LAYOUT ── */
+.page-shell {
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+}
+.form-header {
+  position:sticky;top:0;z-index:100;
+  background:color-mix(in oklab,var(--surface) 90%,transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:var(--space-3) var(--space-6);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);
+}
+.header-brand {
+  display:flex;align-items:center;gap:var(--space-3);
+}
+.logo-mark {
+  width:32px;height:32px;flex-shrink:0;
+}
+.header-title {
+  font-size:var(--text-sm);font-weight:600;
+  color:var(--text);
+}
+.header-subtitle {
+  font-size:var(--text-xs);color:var(--text-muted);
+  margin-top:1px;
+}
+.header-actions{display:flex;align-items:center;gap:var(--space-2);}
+.theme-btn {
+  width:36px;height:36px;border-radius:var(--radius-md);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);border:1px solid var(--border);
+  background:var(--surface-2);
+  transition:color var(--transition),background var(--transition),border-color var(--transition);
+}
+.theme-btn:hover{color:var(--text);background:var(--surface-3);}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap {
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:var(--space-4) var(--space-6);
+}
+.progress-meta {
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:var(--space-2);
+}
+.progress-label {font-size:var(--text-xs);font-weight:600;color:var(--accent);letter-spacing:.05em;text-transform:uppercase}
+.progress-count {font-size:var(--text-xs);color:var(--text-muted)}
+.progress-track {
+  height:4px;background:var(--surface-3);border-radius:var(--radius-full);overflow:hidden;
+}
+.progress-fill {
+  height:100%;background:var(--accent);border-radius:var(--radius-full);
+  transition:width 400ms cubic-bezier(0.34,1.56,0.64,1);
+}
+.step-dots {
+  display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap;
+}
+.step-dot {
+  height:6px;border-radius:var(--radius-full);
+  background:var(--surface-3);transition:all 320ms cubic-bezier(0.34,1.56,0.64,1);
+  cursor:default;
+}
+.step-dot.active{background:var(--accent);width:24px!important;}
+.step-dot.done{background:color-mix(in oklab,var(--accent) 50%,var(--surface-3));}
+
+/* ── MAIN AREA ── */
+.form-main {
+  flex:1;
+  max-width:680px;width:100%;
+  margin:0 auto;
+  padding:var(--space-8) var(--space-6) var(--space-12);
+}
+
+/* ── STEPS ── */
+.form-step {
+  display:none;
+  animation:stepIn 280ms cubic-bezier(0.16,1,0.3,1) both;
+}
+.form-step.active{display:block;}
+@keyframes stepIn {
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.step-heading {
+  margin-bottom:var(--space-6);
+}
+.step-badge {
+  display:inline-flex;align-items:center;gap:var(--space-2);
+  font-size:var(--text-xs);font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-dim);
+  border:1px solid color-mix(in oklab,var(--accent) 30%,transparent);
+  padding:var(--space-1) var(--space-3);border-radius:var(--radius-full);
+  margin-bottom:var(--space-3);
+}
+.step-title {
+  font-size:var(--text-xl);font-weight:700;color:var(--text);line-height:1.2;
+  margin-bottom:var(--space-2);
+}
+.step-desc {
+  font-size:var(--text-sm);color:var(--text-muted);line-height:1.6;
+}
+
+/* ── FIELD GROUPS ── */
+.field-group {
+  display:flex;flex-direction:column;gap:var(--space-5);
+}
+.field-row {
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);
+}
+@media(max-width:560px){.field-row{grid-template-columns:1fr;}}
+.field {
+  display:flex;flex-direction:column;gap:var(--space-2);
+}
+.field-label {
+  font-size:var(--text-sm);font-weight:600;color:var(--text);
+  display:flex;align-items:center;gap:var(--space-2);
+}
+.required-mark {color:var(--error);margin-left:2px;}
+.field-hint {
+  font-size:var(--text-xs);color:var(--text-muted);
+  margin-top:calc(-1 * var(--space-1));line-height:1.5;
+}
+.field-input,
+.field-select,
+.field-textarea {
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  color:var(--text);
+  padding:var(--space-3) var(--space-4);
+  font-size:var(--text-sm);
+  line-height:1.5;
+  transition:border-color var(--transition),background var(--transition),box-shadow var(--transition);
+  width:100%;
+}
+.field-input::placeholder,.field-textarea::placeholder{color:var(--text-faint)}
+.field-input:focus,.field-select:focus,.field-textarea:focus {
+  outline:none;
+  border-color:var(--border-focus);
+  background:var(--surface);
+  box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 15%,transparent);
+}
+.field-input.error,.field-select.error,.field-textarea.error {
+  border-color:color-mix(in oklab,var(--error) 60%,transparent);
+  background:var(--error-dim);
+}
+.field-textarea {
+  min-height:120px;resize:vertical;
+}
+.field-select {
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right var(--space-3) center;
+  padding-right:var(--space-8);cursor:pointer;
+}
+.field-error {
+  font-size:var(--text-xs);color:var(--error);
+  display:flex;align-items:center;gap:var(--space-1);
+  opacity:0;transform:translateY(-4px);
+  transition:all 180ms ease;pointer-events:none;
+}
+.field-error.visible{opacity:1;transform:translateY(0);}
+
+/* ── BENEFIT CHECKBOXES ── */
+.benefit-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);
+}
+@media(max-width:480px){.benefit-grid{grid-template-columns:1fr;}}
+.benefit-option {
+  position:relative;
+}
+.benefit-option input[type="checkbox"] {
+  position:absolute;opacity:0;width:0;height:0;
+}
+.benefit-label {
+  display:flex;align-items:flex-start;gap:var(--space-3);
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-3) var(--space-4);
+  cursor:pointer;
+  transition:all var(--transition);
+  user-select:none;
+  line-height:1.4;
+  font-size:var(--text-sm);
+  color:var(--text-muted);
+}
+.benefit-label:hover {
+  border-color:color-mix(in oklab,var(--accent) 40%,transparent);
+  background:var(--surface-3);
+  color:var(--text);
+}
+.benefit-option input:checked + .benefit-label {
+  border-color:var(--accent);
+  background:var(--accent-dim);
+  color:var(--text);
+}
+.benefit-check {
+  width:18px;height:18px;flex-shrink:0;margin-top:2px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);
+}
+.benefit-option input:checked + .benefit-label .benefit-check {
+  background:var(--accent);border-color:var(--accent);
+}
+.benefit-check-icon {
+  width:10px;height:10px;opacity:0;transform:scale(0);
+  transition:all 200ms cubic-bezier(0.34,1.56,0.64,1);
+  color:#fff;
+}
+.benefit-option input:checked + .benefit-label .benefit-check-icon {
+  opacity:1;transform:scale(1);
+}
+
+/* ── "OTHER" SPECIFIY ── */
+.other-input-wrap {
+  margin-top:var(--space-2);
+  overflow:hidden;max-height:0;
+  transition:max-height 280ms ease;
+}
+.other-input-wrap.visible{max-height:80px;}
+
+/* ── CHAR COUNTER ── */
+.char-counter {
+  font-size:var(--text-xs);color:var(--text-faint);
+  text-align:right;margin-top:calc(-1 * var(--space-1));
+  transition:color var(--transition);
+}
+.char-counter.warn{color:var(--error);}
+
+/* ── FILE UPLOAD ── */
+.file-drop {
+  border:2px dashed var(--border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-8) var(--space-4);
+  text-align:center;
+  cursor:pointer;
+  transition:all var(--transition);
+  background:var(--surface-2);
+  position:relative;
+}
+.file-drop:hover,.file-drop.dragover {
+  border-color:var(--accent);
+  background:var(--accent-dim);
+}
+.file-drop input[type="file"] {
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.file-drop-icon {
+  margin-bottom:var(--space-3);color:var(--text-muted);
+}
+.file-drop-text {
+  font-size:var(--text-sm);color:var(--text-muted);
+}
+.file-drop-text strong{color:var(--accent);}
+.file-drop-hint{font-size:var(--text-xs);color:var(--text-faint);margin-top:var(--space-1);}
+.file-list {
+  list-style:none;margin-top:var(--space-3);display:flex;flex-direction:column;gap:var(--space-2);text-align:left;
+}
+.file-item {
+  display:flex;align-items:center;gap:var(--space-3);
+  background:var(--surface-3);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:var(--space-2) var(--space-3);
+  font-size:var(--text-xs);color:var(--text-muted);
+  animation:stepIn 200ms ease both;
+}
+.file-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+.file-item-size{flex-shrink:0;}
+.file-remove {
+  flex-shrink:0;width:20px;height:20px;
+  border-radius:var(--radius-full);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-faint);
+  transition:all var(--transition);
+}
+.file-remove:hover{color:var(--error);background:var(--error-dim);}
+
+/* ── NAVIGATION BUTTONS ── */
+.form-nav {
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:var(--space-8);padding-top:var(--space-6);
+  border-top:1px solid var(--border);
+  gap:var(--space-3);
+}
+.btn {
+  display:inline-flex;align-items:center;gap:var(--space-2);
+  padding:var(--space-3) var(--space-6);
+  border-radius:var(--radius-lg);
+  font-size:var(--text-sm);font-weight:600;
+  transition:all var(--transition);
+  white-space:nowrap;
+  min-width:100px;justify-content:center;
+}
+.btn-ghost {
+  color:var(--text-muted);background:transparent;
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{color:var(--text);background:var(--surface-3);border-color:var(--text-faint);}
+.btn-primary {
+  background:var(--accent);color:#0d1117;
+  border:1px solid transparent;
+  box-shadow:0 2px 8px color-mix(in oklab,var(--accent) 30%,transparent);
+}
+.btn-primary:hover{background:var(--accent-hover);box-shadow:0 4px 16px color-mix(in oklab,var(--accent) 40%,transparent);}
+.btn-primary:active{transform:scale(0.98);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.btn-icon {
+  width:36px;height:36px;padding:0;min-width:0;
+  border-radius:var(--radius-md);
+  color:var(--text-muted);border:1px solid var(--border);background:var(--surface-2);
+}
+.btn-icon:hover{color:var(--text);background:var(--surface-3);}
+
+/* ── REVIEW SCREEN ── */
+.review-section {
+  margin-bottom:var(--space-6);
+}
+.review-section-title {
+  font-size:var(--text-xs);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:var(--space-3);
+  padding-bottom:var(--space-2);
+  border-bottom:1px solid var(--border);
+}
+.review-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);
+}
+@media(max-width:520px){.review-grid{grid-template-columns:1fr;}}
+.review-item {}
+.review-key {font-size:var(--text-xs);color:var(--text-muted);font-weight:500;margin-bottom:2px;}
+.review-val {
+  font-size:var(--text-sm);color:var(--text);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--space-2) var(--space-3);
+  word-break:break-word;
+}
+.review-val.full{grid-column:1/-1;}
+.review-val.empty{color:var(--text-faint);font-style:italic;}
+.review-badges {
+  display:flex;flex-wrap:wrap;gap:var(--space-1);
+}
+.review-badge {
+  font-size:var(--text-xs);font-weight:500;
+  background:var(--accent-dim);color:var(--accent);
+  border:1px solid color-mix(in oklab,var(--accent) 30%,transparent);
+  padding:2px var(--space-2);border-radius:var(--radius-full);
+}
+.complexity-picker {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);
+}
+@media(max-width:520px){.complexity-picker{grid-template-columns:1fr;}}
+.complexity-option {position:relative;}
+.complexity-option input[type="radio"]{position:absolute;opacity:0;width:0;height:0;}
+.complexity-card {
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:var(--space-4);
+  cursor:pointer;
+  transition:all var(--transition);
+  background:var(--surface-2);
+  text-align:center;
+}
+.complexity-card:hover{border-color:color-mix(in oklab,var(--accent) 40%,transparent);background:var(--surface-3);}
+.complexity-option input:checked + .complexity-card {
+  border-color:var(--accent);
+  background:var(--accent-dim);
+}
+.complexity-dot {
+  width:12px;height:12px;border-radius:var(--radius-full);
+  margin:0 auto var(--space-2);
+}
+.dot-green{background:#3fb950;}
+.dot-yellow{background:#d29922;}
+.dot-red{background:#f85149;}
+.complexity-name {font-size:var(--text-sm);font-weight:700;color:var(--text);margin-bottom:var(--space-1);}
+.complexity-desc {font-size:var(--text-xs);color:var(--text-muted);line-height:1.4;}
+.complexity-time {font-size:var(--text-xs);color:var(--text-faint);margin-top:var(--space-2);}
+
+/* ── SEPARATOR ── */
+.section-sep {
+  border:none;border-top:1px solid var(--border);
+  margin:var(--space-6) 0;
+}
+
+/* ── SUCCESS SCREEN ── */
+.success-screen {
+  display:none;
+  flex-direction:column;align-items:center;
+  text-align:center;
+  padding:var(--space-12) var(--space-6);
+  animation:stepIn 400ms ease both;
+}
+.success-screen.active{display:flex;}
+.success-icon {
+  width:80px;height:80px;
+  background:var(--accent-dim);
+  border:2px solid var(--accent);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:var(--space-6);
+  animation:popIn 500ms cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+.success-title {
+  font-size:var(--text-xl);font-weight:700;color:var(--text);
+  margin-bottom:var(--space-3);
+}
+.success-desc {
+  font-size:var(--text-base);color:var(--text-muted);
+  max-width:42ch;line-height:1.7;margin-bottom:var(--space-6);
+}
+.submission-id {
+  font-family:monospace;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--space-3) var(--space-6);
+  font-size:var(--text-sm);color:var(--text-muted);
+  margin-bottom:var(--space-8);
+}
+.submission-id strong{color:var(--accent);}
+.success-steps {
+  display:flex;flex-direction:column;gap:var(--space-3);
+  text-align:left;width:100%;max-width:400px;
+  margin-bottom:var(--space-8);
+}
+.success-step {
+  display:flex;align-items:flex-start;gap:var(--space-3);
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--space-3) var(--space-4);
+}
+.success-step-num {
+  width:24px;height:24px;flex-shrink:0;
+  border-radius:var(--radius-full);
+  background:var(--accent);color:#0d1117;
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--text-xs);font-weight:700;
+}
+.success-step-text {font-size:var(--text-sm);color:var(--text-muted);line-height:1.5;}
+.success-step-text strong{color:var(--text);}
+
+/* ── TOOLTIP ── */
+.tooltip-wrap{position:relative;display:inline-flex;}
+.tooltip-icon {
+  width:16px;height:16px;border-radius:var(--radius-full);
+  background:var(--surface-3);border:1px solid var(--border);
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--text-faint);font-size:10px;cursor:help;
+  transition:all var(--transition);
+}
+.tooltip-icon:hover{color:var(--text-muted);border-color:var(--text-faint);}
+.tooltip-popup {
+  position:absolute;left:50%;bottom:calc(100% + 6px);
+  transform:translateX(-50%);
+  background:var(--surface-3);border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  padding:var(--space-2) var(--space-3);
+  font-size:var(--text-xs);color:var(--text-muted);
+  white-space:nowrap;max-width:240px;white-space:normal;
+  pointer-events:none;opacity:0;transition:opacity var(--transition);
+  z-index:10;box-shadow:var(--shadow);
+}
+.tooltip-wrap:hover .tooltip-popup{opacity:1;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="page-shell" id="app">
+
+  <!-- HEADER -->
+  <header class="form-header">
+    <div class="header-brand">
+      <svg class="logo-mark" aria-label="BIAP Logo" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="rgba(63,185,80,0.15)" stroke="rgba(63,185,80,0.4)" stroke-width="1"/>
+        <path d="M8 16 L14 10 L20 16 L14 22 Z" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+        <circle cx="22" cy="10" r="3" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+        <path d="M14 10 L22 10" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="2 2"/>
+      </svg>
+      <div>
+        <div class="header-title">Innovation Intake — BIAP</div>
+        <div class="header-subtitle">Bayer Innovation Accelerator Program · GATEWAY Phase</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-btn" data-theme-toggle aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-label" id="progress-label">Step 1 of 4 — Requester Info</span>
+      <span class="progress-count" id="progress-count">25%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:25%"></div>
+    </div>
+    <div class="step-dots" id="step-dots"></div>
+  </div>
+
+  <!-- FORM MAIN -->
+  <main class="form-main" id="form-main">
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 1 — REQUESTER INFORMATION      -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-step active" data-step="1">
+      <div class="step-heading">
+        <div class="step-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>
+          Step 1 of 4
+        </div>
+        <h1 class="step-title">Who is submitting this idea?</h1>
+        <p class="step-desc">Tell us about yourself and the team behind this initiative.</p>
+      </div>
+
+      <div class="field-group">
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="requester-name">
+              Requester Name <span class="required-mark">*</span>
+            </label>
+            <input class="field-input" id="requester-name" type="text" placeholder="Full name" autocomplete="name" required>
+            <div class="field-error" id="err-requester-name">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Please enter your full name
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="requester-email">
+              Requester Email <span class="required-mark">*</span>
+            </label>
+            <input class="field-input" id="requester-email" type="email" placeholder="name@bayer.com" autocomplete="email" required>
+            <div class="field-error" id="err-requester-email">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Enter a valid Bayer email address
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="business-unit">
+            Business Unit / Department <span class="required-mark">*</span>
+          </label>
+          <select class="field-select" id="business-unit" required>
+            <option value="" disabled selected>Select your BU / Department</option>
+            <optgroup label="Crop Science">
+              <option>Crop Science — Digital Farming</option>
+              <option>Crop Science — R&amp;D</option>
+              <option>Crop Science — Commercial Operations</option>
+              <option>Crop Science — Supply Chain</option>
+            </optgroup>
+            <optgroup label="Pharmaceuticals">
+              <option>Pharmaceuticals — Oncology</option>
+              <option>Pharmaceuticals — Cardiology</option>
+              <option>Pharmaceuticals — Women's Health</option>
+              <option>Pharmaceuticals — Radiology</option>
+              <option>Pharmaceuticals — R&amp;D</option>
+              <option>Pharmaceuticals — Medical Affairs</option>
+            </optgroup>
+            <optgroup label="Consumer Health">
+              <option>Consumer Health — Marketing</option>
+              <option>Consumer Health — Sales</option>
+              <option>Consumer Health — Operations</option>
+            </optgroup>
+            <optgroup label="Enabling Functions">
+              <option>Finance &amp; Accounting</option>
+              <option>Human Resources</option>
+              <option>IT / Digital</option>
+              <option>Legal &amp; Compliance</option>
+              <option>Procurement &amp; Supply Chain</option>
+              <option>Quality &amp; Regulatory</option>
+              <option>Communications &amp; PR</option>
+            </optgroup>
+            <option>Other</option>
+          </select>
+          <div class="field-error" id="err-business-unit">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please select a business unit
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="process-owner">
+              Process Owner
+              <div class="tooltip-wrap">
+                <span class="tooltip-icon">?</span>
+                <div class="tooltip-popup">The person accountable for the process being improved. Leave blank if same as requester.</div>
+              </div>
+            </label>
+            <input class="field-input" id="process-owner" type="text" placeholder="Name (if different)">
+          </div>
+          <div class="field">
+            <label class="field-label" for="backup-owner">
+              Backup Process Owner
+              <div class="tooltip-wrap">
+                <span class="tooltip-icon">?</span>
+                <div class="tooltip-popup">A secondary contact who can provide clarification during evaluation.</div>
+              </div>
+            </label>
+            <input class="field-input" id="backup-owner" type="text" placeholder="Name">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <span></span>
+        <button class="btn btn-primary" onclick="nextStep(1)">
+          Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div><!-- /step 1 -->
+
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 2 — INITIATIVE DETAILS         -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-step" data-step="2">
+      <div class="step-heading">
+        <div class="step-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Step 2 of 4
+        </div>
+        <h2 class="step-title">Describe your initiative</h2>
+        <p class="step-desc">Give us a clear picture of the problem you're solving and what success looks like.</p>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label class="field-label" for="initiative-title">
+            Initiative Title <span class="required-mark">*</span>
+          </label>
+          <input class="field-input" id="initiative-title" type="text" placeholder="e.g., Automated Invoice Reconciliation — AP Team" maxlength="100" required>
+          <div class="char-counter" id="counter-title">0 / 100</div>
+          <div class="field-error" id="err-initiative-title">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please provide a title for your initiative
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="problem-statement">
+            Problem Statement <span class="required-mark">*</span>
+          </label>
+          <p class="field-hint">Describe the core challenge or inefficiency you are facing with the current process.</p>
+          <textarea class="field-textarea" id="problem-statement" placeholder="e.g., Our team manually reconciles 500+ invoices per month using Excel. This takes ~40 hours/month, is error-prone, and delays month-end close by 2 days..." maxlength="1000" required></textarea>
+          <div class="char-counter" id="counter-problem">0 / 1000</div>
+          <div class="field-error" id="err-problem-statement">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please describe the problem you are facing
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="frequency">
+            Frequency of the Problem <span class="required-mark">*</span>
+          </label>
+          <p class="field-hint">How often does this issue occur? E.g., daily, weekly, during month-end closing.</p>
+          <select class="field-select" id="frequency" required>
+            <option value="" disabled selected>Select frequency</option>
+            <option>Multiple times per day</option>
+            <option>Daily</option>
+            <option>Weekly</option>
+            <option>Bi-weekly</option>
+            <option>Monthly</option>
+            <option>During month-end closing</option>
+            <option>During quarter-end closing</option>
+            <option>Quarterly</option>
+            <option>Ad-hoc / irregular</option>
+          </select>
+          <div class="field-error" id="err-frequency">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please select the frequency
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="objectives">
+            Key Objectives &amp; Desired Outcomes <span class="required-mark">*</span>
+          </label>
+          <p class="field-hint">What does success look like? What are the main results you aim to achieve?</p>
+          <textarea class="field-textarea" id="objectives" placeholder="e.g., Eliminate manual reconciliation by automating data extraction and matching. Reduce close cycle by 2 days. Free up 40 hrs/month for value-added analysis..." maxlength="800" required></textarea>
+          <div class="char-counter" id="counter-objectives">0 / 800</div>
+          <div class="field-error" id="err-objectives">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please describe your key objectives
+          </div>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn btn-ghost" onclick="prevStep(2)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="nextStep(2)">
+          Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div><!-- /step 2 -->
+
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 3 — IMPACT & COMPLEXITY        -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-step" data-step="3">
+      <div class="step-heading">
+        <div class="step-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Step 3 of 4
+        </div>
+        <h2 class="step-title">Impact &amp; complexity</h2>
+        <p class="step-desc">Help us understand the benefit category, expected value, and initiative complexity.</p>
+      </div>
+
+      <div class="field-group">
+        <div class="field">
+          <label class="field-label">
+            Primary Benefit Category <span class="required-mark">*</span>
+          </label>
+          <p class="field-hint">Select all areas of impact that apply.</p>
+          <div class="benefit-grid" id="benefit-grid">
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-time" value="Time Savings">
+              <label class="benefit-label" for="ben-time">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Time Savings</strong><br>
+                  <span style="font-size:var(--text-xs)">Reduction of manual work hours</span>
+                </span>
+              </label>
+            </div>
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-financial" value="Financial Impact">
+              <label class="benefit-label" for="ben-financial">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Financial Impact</strong><br>
+                  <span style="font-size:var(--text-xs)">Cost reduction or revenue generation</span>
+                </span>
+              </label>
+            </div>
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-quality" value="Quality Improvement">
+              <label class="benefit-label" for="ben-quality">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Quality Improvement</strong><br>
+                  <span style="font-size:var(--text-xs)">Data accuracy, error reduction</span>
+                </span>
+              </label>
+            </div>
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-compliance" value="Compliance & Risk Reduction">
+              <label class="benefit-label" for="ben-compliance">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Compliance &amp; Risk Reduction</strong><br>
+                  <span style="font-size:var(--text-xs)">Regulatory adherence, audit trail</span>
+                </span>
+              </label>
+            </div>
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-safety" value="Safety / Sustainability">
+              <label class="benefit-label" for="ben-safety">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Safety / Sustainability</strong><br>
+                  <span style="font-size:var(--text-xs)">Environmental or safety impact</span>
+                </span>
+              </label>
+            </div>
+            <div class="benefit-option">
+              <input type="checkbox" id="ben-other" value="Other" onchange="toggleOtherInput()">
+              <label class="benefit-label" for="ben-other">
+                <span class="benefit-check">
+                  <svg class="benefit-check-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+                </span>
+                <span>
+                  <strong>Other</strong><br>
+                  <span style="font-size:var(--text-xs)">Please specify below</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="other-input-wrap" id="other-input-wrap">
+            <input class="field-input" id="ben-other-text" type="text" placeholder="Describe other benefit category..." style="margin-top:var(--space-2)">
+          </div>
+          <div class="field-error" id="err-benefits">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please select at least one benefit category
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <div class="field">
+          <label class="field-label" for="expected-impact">
+            Quantify the Expected Impact <span class="required-mark">*</span>
+          </label>
+          <p class="field-hint">Provide a specific estimate. E.g., "save 10 hours/week," "reduce costs by $50k/year," "decrease errors by 25%."</p>
+          <textarea class="field-textarea" id="expected-impact" placeholder="e.g., Expected to save 10 hours per week across the AP team (520 hrs/year), reduce error rate from 8% to under 1%, and accelerate close by 2 days per month." maxlength="600" style="min-height:96px" required></textarea>
+          <div class="char-counter" id="counter-impact">0 / 600</div>
+          <div class="field-error" id="err-expected-impact">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please estimate the expected impact
+          </div>
+        </div>
+
+        <hr class="section-sep">
+
+        <div class="field">
+          <label class="field-label">
+            Estimated Complexity Tier
+            <div class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <div class="tooltip-popup">This is your estimate — the Review Committee will validate during evaluation.</div>
+            </div>
+          </label>
+          <p class="field-hint">Select the tier that best fits your initiative. The Review Committee will validate this during evaluation.</p>
+          <div class="complexity-picker">
+            <div class="complexity-option">
+              <input type="radio" name="complexity" id="tier-1" value="Tier 1 — Quick Win">
+              <label class="complexity-card" for="tier-1">
+                <div class="complexity-dot dot-green"></div>
+                <div class="complexity-name">Tier 1</div>
+                <div class="complexity-desc">Quick Win · Low complexity</div>
+                <div class="complexity-time">1–4 weeks</div>
+              </label>
+            </div>
+            <div class="complexity-option">
+              <input type="radio" name="complexity" id="tier-2" value="Tier 2 — Core Innovation">
+              <label class="complexity-card" for="tier-2">
+                <div class="complexity-dot dot-yellow"></div>
+                <div class="complexity-name">Tier 2</div>
+                <div class="complexity-desc">Core Innovation · Medium complexity</div>
+                <div class="complexity-time">4–12 weeks</div>
+              </label>
+            </div>
+            <div class="complexity-option">
+              <input type="radio" name="complexity" id="tier-3" value="Tier 3 — Strategic Bet">
+              <label class="complexity-card" for="tier-3">
+                <div class="complexity-dot dot-red"></div>
+                <div class="complexity-name">Tier 3</div>
+                <div class="complexity-desc">Strategic Bet · High complexity</div>
+                <div class="complexity-time">3–12 months</div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn btn-ghost" onclick="prevStep(3)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" onclick="nextStep(3)">
+          Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div><!-- /step 3 -->
+
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 4 — REVIEW & SUBMIT            -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-step" data-step="4">
+      <div class="step-heading">
+        <div class="step-badge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+          Step 4 of 4
+        </div>
+        <h2 class="step-title">Review &amp; submit</h2>
+        <p class="step-desc">Confirm your submission details and attach any supporting documents before sending to the Review Committee.</p>
+      </div>
+
+      <!-- REVIEW SUMMARY (populated by JS) -->
+      <div id="review-summary">
+        <div class="review-section">
+          <div class="review-section-title">Requester Information</div>
+          <div class="review-grid" id="rv-requester"></div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-title">Initiative Details</div>
+          <div class="review-grid" id="rv-initiative"></div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-title">Impact &amp; Complexity</div>
+          <div class="review-grid" id="rv-impact"></div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+
+      <!-- FILE UPLOAD -->
+      <div class="field">
+        <label class="field-label" for="file-upload">
+          Supporting Documents
+          <span style="font-size:var(--text-xs);font-weight:400;color:var(--text-muted);margin-left:var(--space-2)">(Optional)</span>
+        </label>
+        <p class="field-hint">Attach process maps, screenshots, or data files that help explain your idea. Max 10 MB per file.</p>
+        <div class="file-drop" id="file-drop">
+          <input type="file" id="file-upload" multiple accept=".pdf,.xlsx,.xls,.docx,.doc,.pptx,.ppt,.png,.jpg,.jpeg,.csv,.zip" aria-label="Upload supporting documents">
+          <div class="file-drop-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="file-drop-text"><strong>Click to upload</strong> or drag and drop</div>
+          <div class="file-drop-hint">PDF, Excel, Word, PowerPoint, images, CSV, ZIP</div>
+        </div>
+        <ul class="file-list" id="file-list"></ul>
+      </div>
+
+      <div class="form-nav">
+        <button class="btn btn-ghost" onclick="prevStep(4)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submitForm()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Submit Initiative
+        </button>
+      </div>
+    </div><!-- /step 4 -->
+
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SUCCESS SCREEN                      -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="success-screen" id="success-screen" aria-live="polite">
+      <div class="success-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 class="success-title">Initiative Successfully Submitted!</h2>
+      <p class="success-desc">
+        Your idea has been received by the Bayer Innovation CoE. The Review Committee will evaluate it within 10 business days.
+      </p>
+      <div class="submission-id" id="submission-id">
+        Submission ID: <strong id="sub-id-val"></strong>
+      </div>
+      <div class="success-steps">
+        <div class="success-step">
+          <div class="success-step-num">1</div>
+          <div class="success-step-text"><strong>Acknowledgment email</strong> — You will receive a confirmation within 24 hours.</div>
+        </div>
+        <div class="success-step">
+          <div class="success-step-num">2</div>
+          <div class="success-step-text"><strong>Initial screening</strong> — CoE reviews for completeness within 5 business days.</div>
+        </div>
+        <div class="success-step">
+          <div class="success-step-num">3</div>
+          <div class="success-step-text"><strong>IRB evaluation</strong> — Monthly Innovation Review Board scores and prioritizes your initiative.</div>
+        </div>
+        <div class="success-step">
+          <div class="success-step-num">4</div>
+          <div class="success-step-text"><strong>Decision &amp; next steps</strong> — You'll be notified of the outcome and development track assignment.</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="resetForm()" style="margin-top:var(--space-2)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        Submit Another Initiative
+      </button>
+    </div>
+
+  </main>
+</div><!-- /page-shell -->
+
+<script>
+/* ── STATE ── */
+const TOTAL_STEPS = 4;
+let currentStep = 1;
+let uploadedFiles = [];
+
+const STEP_LABELS = [
+  'Step 1 of 4 — Requester Info',
+  'Step 2 of 4 — Initiative Details',
+  'Step 3 of 4 — Impact & Complexity',
+  'Step 4 of 4 — Review & Submit'
+];
+
+/* ── THEME TOGGLE ── */
+(function(){
+  const t = document.querySelector('[data-theme-toggle]'),r = document.documentElement;
+  let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  r.setAttribute('data-theme', d);
+  if(t) t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.innerHTML = d === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  });
+})();
+
+/* ── PROGRESS DOTS ── */
+function initDots(){
+  const container = document.getElementById('step-dots');
+  container.innerHTML = '';
+  for(let i=1; i<=TOTAL_STEPS; i++){
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === currentStep ? ' active' : i < currentStep ? ' done' : '');
+    dot.style.width = i === currentStep ? '24px' : '6px';
+    container.appendChild(dot);
+  }
+}
+function updateProgress(){
+  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = STEP_LABELS[currentStep - 1];
+  document.getElementById('progress-count').textContent = pct + '%';
+  initDots();
+}
+
+/* ── CHAR COUNTERS ── */
+function initCounters(){
+  [
+    ['initiative-title','counter-title',100],
+    ['problem-statement','counter-problem',1000],
+    ['objectives','counter-objectives',800],
+    ['expected-impact','counter-impact',600],
+  ].forEach(([id, cid, max]) => {
+    const el = document.getElementById(id);
+    const counter = document.getElementById(cid);
+    if(!el || !counter) return;
+    const update = () => {
+      const len = el.value.length;
+      counter.textContent = len + ' / ' + max;
+      counter.classList.toggle('warn', len > max * 0.9);
+    };
+    el.addEventListener('input', update);
+  });
+}
+
+/* ── VALIDATION ── */
+function showError(id, show){
+  const el = document.getElementById('err-' + id);
+  if(el) el.classList.toggle('visible', show);
+  const input = document.getElementById(id);
+  if(input) input.classList.toggle('error', show);
+}
+
+function validateStep(step){
+  let valid = true;
+  if(step === 1){
+    const name = document.getElementById('requester-name').value.trim();
+    const email = document.getElementById('requester-email').value.trim();
+    const bu = document.getElementById('business-unit').value;
+    if(!name){ showError('requester-name', true); valid = false; } else showError('requester-name', false);
+    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showError('requester-email', true); valid = false; } else showError('requester-email', false);
+    if(!bu){ showError('business-unit', true); valid = false; } else showError('business-unit', false);
+  }
+  if(step === 2){
+    const title = document.getElementById('initiative-title').value.trim();
+    const prob = document.getElementById('problem-statement').value.trim();
+    const freq = document.getElementById('frequency').value;
+    const obj = document.getElementById('objectives').value.trim();
+    if(!title){ showError('initiative-title', true); valid = false; } else showError('initiative-title', false);
+    if(prob.length < 20){ showError('problem-statement', true); valid = false; } else showError('problem-statement', false);
+    if(!freq){ showError('frequency', true); valid = false; } else showError('frequency', false);
+    if(obj.length < 10){ showError('objectives', true); valid = false; } else showError('objectives', false);
+  }
+  if(step === 3){
+    const checked = document.querySelectorAll('#benefit-grid input:checked');
+    const impact = document.getElementById('expected-impact').value.trim();
+    if(checked.length === 0){ showError('benefits', true); valid = false; } else showError('benefits', false);
+    if(impact.length < 10){ showError('expected-impact', true); valid = false; } else showError('expected-impact', false);
+  }
+  return valid;
+}
+
+/* ── NAVIGATION ── */
+function showStep(n){
+  document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+  const target = document.querySelector('[data-step="' + n + '"]');
+  if(target) target.classList.add('active');
+  document.getElementById('form-main').scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function nextStep(from){
+  if(!validateStep(from)) return;
+  if(from === 3) buildReviewSummary();
+  currentStep = from + 1;
+  showStep(currentStep);
+  updateProgress();
+}
+
+function prevStep(from){
+  currentStep = from - 1;
+  showStep(currentStep);
+  updateProgress();
+}
+
+/* ── "OTHER" BENEFIT TOGGLE ── */
+function toggleOtherInput(){
+  const checked = document.getElementById('ben-other').checked;
+  const wrap = document.getElementById('other-input-wrap');
+  wrap.classList.toggle('visible', checked);
+}
+
+/* ── REVIEW SUMMARY BUILDER ── */
+function rv(key, val, full){
+  const isEmpty = !val || val.toString().trim() === '';
+  return '<div class="review-item' + (full ? ' review-val full' : '') + '">'
+    + '<div class="review-key">' + key + '</div>'
+    + '<div class="review-val' + (full ? ' full' : '') + (isEmpty ? ' empty' : '') + '">' + (isEmpty ? 'Not provided' : escHtml(val)) + '</div>'
+    + '</div>';
+}
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function buildReviewSummary(){
+  const checked = [...document.querySelectorAll('#benefit-grid input:checked')].map(i => i.value);
+  const otherText = document.getElementById('ben-other-text').value.trim();
+  const benefitLabels = checked.map(v => v === 'Other' && otherText ? 'Other: ' + otherText : v);
+  const complexity = document.querySelector('input[name="complexity"]:checked');
+
+  document.getElementById('rv-requester').innerHTML =
+    rv('Name', document.getElementById('requester-name').value) +
+    rv('Email', document.getElementById('requester-email').value) +
+    rv('Business Unit', document.getElementById('business-unit').value) +
+    rv('Process Owner', document.getElementById('process-owner').value) +
+    rv('Backup Process Owner', document.getElementById('backup-owner').value);
+
+  document.getElementById('rv-initiative').innerHTML =
+    '<div class="review-item" style="grid-column:1/-1">' +
+      '<div class="review-key">Initiative Title</div>' +
+      '<div class="review-val full">' + escHtml(document.getElementById('initiative-title').value) + '</div>' +
+    '</div>' +
+    '<div class="review-item" style="grid-column:1/-1">' +
+      '<div class="review-key">Problem Statement</div>' +
+      '<div class="review-val full">' + escHtml(document.getElementById('problem-statement').value) + '</div>' +
+    '</div>' +
+    rv('Frequency', document.getElementById('frequency').value) +
+    '<div class="review-item" style="grid-column:1/-1">' +
+      '<div class="review-key">Key Objectives</div>' +
+      '<div class="review-val full">' + escHtml(document.getElementById('objectives').value) + '</div>' +
+    '</div>';
+
+  document.getElementById('rv-impact').innerHTML =
+    '<div class="review-item" style="grid-column:1/-1">' +
+      '<div class="review-key">Primary Benefit Categories</div>' +
+      '<div class="review-val full">' +
+        (benefitLabels.length ? '<div class="review-badges">' + benefitLabels.map(b => '<span class="review-badge">' + escHtml(b) + '</span>').join('') + '</div>' : '<span class="empty">Not selected</span>') +
+      '</div>' +
+    '</div>' +
+    '<div class="review-item" style="grid-column:1/-1">' +
+      '<div class="review-key">Expected Impact</div>' +
+      '<div class="review-val full">' + escHtml(document.getElementById('expected-impact').value) + '</div>' +
+    '</div>' +
+    rv('Estimated Complexity Tier', complexity ? complexity.value : '');
+}
+
+/* ── FILE UPLOAD ── */
+function initFileUpload(){
+  const drop = document.getElementById('file-drop');
+  const input = document.getElementById('file-upload');
+  const list = document.getElementById('file-list');
+
+  input.addEventListener('change', () => handleFiles(input.files));
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  function handleFiles(files){
+    [...files].forEach(f => {
+      if(f.size > 10 * 1024 * 1024) return; // 10MB limit
+      if(uploadedFiles.find(uf => uf.name === f.name)) return;
+      uploadedFiles.push(f);
+      const li = document.createElement('li');
+      li.className = 'file-item';
+      li.dataset.name = f.name;
+      const size = f.size < 1024 * 1024
+        ? (f.size / 1024).toFixed(1) + ' KB'
+        : (f.size / (1024 * 1024)).toFixed(1) + ' MB';
+      li.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--text-muted)"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        <span class="file-item-name">${escHtml(f.name)}</span>
+        <span class="file-item-size">${size}</span>
+        <button class="file-remove" aria-label="Remove ${escHtml(f.name)}" onclick="removeFile(this,'${escHtml(f.name)}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      list.appendChild(li);
+    });
+  }
+}
+
+function removeFile(btn, name){
+  uploadedFiles = uploadedFiles.filter(f => f.name !== name);
+  const item = btn.closest('.file-item');
+  if(item) item.remove();
+}
+
+/* ── SUBMIT ── */
+function submitForm(){
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Submitting...';
+  /* simulate network delay */
+  setTimeout(() => {
+    const id = 'BIAP-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('sub-id-val').textContent = id;
+    document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('progress-wrap').style.display = 'none';
+    document.getElementById('success-screen').classList.add('active');
+    window.scrollTo(0,0);
+  }, 1400);
+}
+document.head.insertAdjacentHTML('beforeend','<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>');
+
+/* ── RESET ── */
+function resetForm(){
+  currentStep = 1;
+  document.getElementById('progress-wrap').style.display = '';
+  document.getElementById('success-screen').classList.remove('active');
+  document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.field-input,.field-textarea,.field-select').forEach(el => { el.value = ''; el.classList.remove('error'); });
+  document.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(el => el.checked = false);
+  document.getElementById('other-input-wrap').classList.remove('visible');
+  document.getElementById('file-list').innerHTML = '';
+  uploadedFiles = [];
+  showStep(1);
+  updateProgress();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Submit Initiative';
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  initCounters();
+  initFileUpload();
+  updateProgress();
+});
+</script>
+</body>
+</html>
