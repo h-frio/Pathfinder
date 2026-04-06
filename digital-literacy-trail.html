@@ -1,878 +1,618 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Digital Literacy Trail — Pathfinders</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --navy: #003366; --navy-mid: #004b99;
-  --green: #00A651; --green-light: #00C060;
-  --bg: #0d1117; --bg2: #161b22; --bg3: #1c2330; --bg4: #232c3d;
-  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
-  --text: #e6edf3; --text-muted: #8b949e; --text-faint: #484f58;
-  --font: 'Inter', -apple-system, sans-serif;
-  --ease: 220ms cubic-bezier(0.16,1,0.3,1);
-  /* Level colors */
-  --eu:  #8b949e;   /* Everyday User — neutral */
-  --cd:  #00b4d8;   /* Citizen Developer — cyan */
-  --pu:  #00A651;   /* Power User — green */
-  --pd:  #a855f7;   /* Product Developer — purple */
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 68px; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; overflow-x: hidden; }
-
-/* NAV */
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(13,17,23,0.96); backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border); height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 clamp(16px,4vw,48px);
-}
-.nav-left { display: flex; align-items: center; gap: 12px; }
-.nav-brand { display: flex; flex-direction: column; line-height: 1.2; }
-.nav-name { font-size: 0.9rem; font-weight: 700; }
-.nav-sub { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
-.nav-back {
-  display: flex; align-items: center; gap: 6px; color: var(--text-muted);
-  text-decoration: none; font-size: 0.78rem; font-weight: 500;
-  padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border2);
-  transition: all var(--ease);
-}
-.nav-back:hover { color: var(--text); background: var(--bg3); }
-
-/* HERO */
-.hero {
-  max-width: 1000px; margin: 0 auto;
-  padding: clamp(40px,6vw,80px) clamp(16px,4vw,48px) clamp(24px,4vw,48px);
-  text-align: center;
-}
-.hero-tag {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(0,166,81,0.1); border: 1px solid rgba(0,166,81,0.25);
-  color: var(--green); border-radius: 99px; padding: 5px 14px;
-  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
-  margin-bottom: 20px;
-}
-.hero h1 { font-size: clamp(1.7rem,3.5vw,2.6rem); font-weight: 700; line-height: 1.15; margin-bottom: 14px; }
-.hero h1 span { color: var(--green); }
-.hero-desc { color: var(--text-muted); font-size: 0.92rem; max-width: 640px; margin: 0 auto 32px; line-height: 1.7; }
-
-/* FUNNEL OVERVIEW */
-.funnel-section { max-width: 1100px; margin: 0 auto; padding: 0 clamp(16px,4vw,48px) clamp(32px,5vw,56px); }
-
-.funnel-wrap {
-  display: flex; gap: 32px; align-items: flex-start;
-}
-@media (max-width: 820px) { .funnel-wrap { flex-direction: column; } }
-
-/* SVG funnel */
-.funnel-visual { flex-shrink: 0; width: 340px; }
-@media (max-width: 820px) { .funnel-visual { width: 100%; } }
-
-.funnel-level-btn {
-  cursor: pointer; transition: opacity var(--ease), filter var(--ease);
-}
-.funnel-level-btn:hover { filter: brightness(1.15); }
-.funnel-level-btn.active { filter: brightness(1.25) drop-shadow(0 0 8px currentColor); }
-.funnel-level-btn.inactive { opacity: 0.4; }
-
-/* Level tabs (right of funnel) */
-.level-tabs { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-.level-tab {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
-  padding: 14px 18px; cursor: pointer; transition: all var(--ease);
-  border-left: 3px solid transparent;
-}
-.level-tab:hover { border-color: var(--border2); background: var(--bg3); }
-.level-tab.active { background: var(--bg3); }
-.level-tab-header { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
-.level-tag {
-  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-  padding: 2px 8px; border-radius: 99px;
-}
-.level-tab-title { font-size: 0.92rem; font-weight: 700; }
-.level-tab-pct { margin-left: auto; font-size: 0.72rem; color: var(--text-faint); }
-.level-tab-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
-
-/* LEVEL DETAIL */
-.level-detail-section {
-  max-width: 1100px; margin: 0 auto;
-  padding: 0 clamp(16px,4vw,48px) clamp(40px,6vw,72px);
-}
-.detail-panel { display: none; animation: fadeIn 0.25s ease; }
-.detail-panel.active { display: block; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-
-.dp-header {
-  display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
-  padding: 20px 24px; background: var(--bg2); border-radius: 12px; border: 1px solid var(--border2);
-  border-left: 4px solid currentColor;
-}
-.dp-icon { font-size: 2rem; }
-.dp-header-text h2 { font-size: 1.2rem; font-weight: 700; }
-.dp-header-text p { font-size: 0.82rem; color: var(--text-muted); margin-top: 3px; }
-.dp-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; margin-top: 6px; display: inline-block; }
-
-.dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-@media (max-width: 680px) { .dp-grid { grid-template-columns: 1fr; } }
-.dp-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-@media (max-width: 820px) { .dp-grid-3 { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 500px) { .dp-grid-3 { grid-template-columns: 1fr; } }
-
-.dp-card {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
-  padding: 16px 18px;
-}
-.dp-card-title {
-  font-size: 0.78rem; font-weight: 700; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 7px; text-transform: uppercase;
-  letter-spacing: 0.05em; color: var(--text-muted);
-}
-.dp-card-title .icon { font-size: 0.95rem; }
-
-/* Learning modules */
-.module-list { display: flex; flex-direction: column; gap: 8px; }
-.module-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  background: var(--bg3); border-radius: 8px; padding: 10px 12px;
-  border: 1px solid var(--border);
-}
-.module-num {
-  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.62rem; font-weight: 700; color: white; margin-top: 1px;
-}
-.module-body { flex: 1; }
-.module-name { font-size: 0.82rem; font-weight: 600; margin-bottom: 2px; }
-.module-desc { font-size: 0.74rem; color: var(--text-muted); line-height: 1.5; }
-.module-duration { font-size: 0.68rem; color: var(--text-faint); margin-top: 3px; }
-
-/* Tools grid */
-.tools-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-.tool-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--bg3); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 7px 11px;
-  font-size: 0.76rem; font-weight: 500;
-  transition: all var(--ease);
-}
-.tool-pill:hover { border-color: currentColor; }
-.tool-icon { font-size: 1rem; }
-
-/* Solutions */
-.solutions-list { display: flex; flex-direction: column; gap: 8px; }
-.solution-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 12px; background: var(--bg3); border-radius: 8px;
-  border: 1px solid var(--border);
-}
-.solution-icon { font-size: 1.1rem; flex-shrink: 0; }
-.solution-body { flex: 1; }
-.solution-name { font-size: 0.82rem; font-weight: 600; margin-bottom: 2px; }
-.solution-desc { font-size: 0.74rem; color: var(--text-muted); line-height: 1.5; }
-.solution-tier {
-  font-size: 0.62rem; font-weight: 700; padding: 1px 6px; border-radius: 4px;
-  display: inline-block; margin-top: 4px;
-}
-
-/* Skills checklist */
-.skills-list { display: flex; flex-direction: column; gap: 6px; }
-.skill-item {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.8rem; color: var(--text-muted);
-}
-.skill-check { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; color: white; }
-
-/* Progression arrow between levels */
-.progression-divider {
-  text-align: center; padding: 20px; color: var(--text-faint);
-  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  display: flex; align-items: center; gap: 12px; max-width: 1100px; margin: 0 auto;
-  padding-inline: clamp(16px,4vw,48px);
-}
-.progression-divider::before, .progression-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
-
-/* Governance note */
-.gov-note {
-  max-width: 1100px; margin: 0 auto;
-  padding: 0 clamp(16px,4vw,48px) clamp(32px,5vw,56px);
-}
-.gov-note-inner {
-  background: rgba(0,75,153,0.1); border: 1px solid rgba(0,75,153,0.25);
-  border-radius: 12px; padding: 18px 24px;
-  display: flex; align-items: flex-start; gap: 14px;
-}
-.gov-note-icon { font-size: 1.4rem; flex-shrink: 0; }
-.gov-note-text h4 { font-size: 0.88rem; font-weight: 700; color: #60a8ff; margin-bottom: 5px; }
-.gov-note-text p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
-
-/* reveal */
-.reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.45s ease, transform 0.45s ease; }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-
-footer {
-  text-align: center; padding: 24px;
-  border-top: 1px solid var(--border); color: var(--text-faint); font-size: 0.74rem; margin-top: 32px;
-}
-footer span { color: var(--green); }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathfinders – Digital Literacy Trail</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --green:#00A651;--blue:#38bdf8;--purple:#a855f7;
+      --bg:#050816;--surface:#020617;--surface-2:#0b1220;
+      --border:rgba(148,163,184,.35);--text:#e5e7eb;
+      --text-muted:#9ca3af;--text-faint:#4b5563;
+      --radius:14px;--radius-sm:10px;
+      --tr:200ms cubic-bezier(0.16,1,0.3,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;}
+    body{min-height:100vh;background:radial-gradient(circle at top,#111827 0,#020617 55%,#000 100%);color:var(--text);font-family:'Satoshi','Inter',system-ui,sans-serif;line-height:1.6;}
+    /* HEADER */
+    header{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);background:linear-gradient(90deg,rgba(0,26,51,.96),rgba(0,12,30,.96));border-bottom:1px solid rgba(15,23,42,.8);padding:0 2rem;}
+    .header-inner{max-width:1240px;margin:0 auto;height:60px;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+    .logo-group{display:flex;align-items:center;gap:.7rem;color:#fff;}
+    .logo-mark{width:30px;height:30px;border-radius:999px;border:2px solid #00A651;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#00A651;box-shadow:0 0 18px rgba(0,166,81,.55);}
+    .logo-text{font-weight:700;font-size:1.05rem;}
+    .logo-sub{font-size:.65rem;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;}
+    .header-pill{padding:.25rem .7rem;border-radius:999px;border:1px solid rgba(0,166,81,.4);background:rgba(0,166,81,.12);color:#bbf7d0;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+    /* HERO */
+    .page-hero{padding:2.5rem 2rem 1.75rem;border-bottom:1px solid rgba(15,23,42,.9);}
+    .page-hero-inner{max-width:720px;margin:0 auto;text-align:center;}
+    .eyebrow{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .8rem;border-radius:999px;border:1px solid rgba(59,130,246,.45);background:rgba(15,23,42,.92);color:#93c5fd;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;}
+    .page-hero h1{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:700;color:#f9fafb;margin-bottom:.5rem;}
+    .page-hero h1 span{color:var(--green);}
+    .page-hero p{font-size:.9rem;color:var(--text-muted);max-width:520px;margin:0 auto 1.2rem;}
+    .hero-stats{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;}
+    .stat .n{font-size:1.4rem;font-weight:700;color:#f9fafb;}
+    .stat .l{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+    /* ROLES SECTION */
+    .roles-section{padding:0 2rem 1.75rem;}
+    .roles-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:2.8rem;align-items:center;}
+    .pyramid-wrap{padding:1.8rem 0;}
+    .pyramid-title{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:1rem;}
+    .p-layer{position:relative;margin-inline:auto;margin-bottom:.55rem;padding:.7rem 1.3rem;border-radius:999px;text-align:left;font-size:.82rem;font-weight:600;border:1px solid var(--border);background:var(--surface-2);opacity:.8;cursor:pointer;transition:transform var(--tr),opacity var(--tr),box-shadow var(--tr);}
+    .p-layer span{display:block;font-size:.72rem;font-weight:500;color:var(--text-muted);}
+    .p-layer.layer-1{width:100%;}
+    .p-layer.layer-2{width:80%;}
+    .p-layer.layer-3{width:60%;}
+    .p-layer.layer-4{width:40%;}
+    .p-layer.role-everyday{background:linear-gradient(135deg,rgba(148,163,184,.32),rgba(15,23,42,.98));border-color:rgba(148,163,184,.9);}
+    .p-layer.role-citizen{background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(15,23,42,.98));border-color:rgba(250,204,21,.95);}
+    .p-layer.role-power{background:linear-gradient(135deg,rgba(34,197,94,.34),rgba(15,23,42,.98));border-color:rgba(34,197,94,.95);}
+    .p-layer.role-product{background:linear-gradient(135deg,rgba(31,41,55,.9),rgba(15,23,42,1));border-color:rgba(55,65,81,.95);}
+    .p-layer.active{opacity:1;box-shadow:0 0 0 1px currentColor,0 24px 60px rgba(0,0,0,.9);transform:translateY(-2px);}
+    /* ROLE CARDS */
+    .roles-cards{display:flex;flex-direction:column;gap:.7rem;}
+    .role-card{position:relative;border-radius:var(--radius);padding:.9rem 1.1rem .9rem 1.4rem;border:1px solid rgba(148,163,184,.4);background:radial-gradient(circle at top left,rgba(148,163,184,.1),rgba(15,23,42,1));display:flex;flex-direction:column;gap:.15rem;cursor:pointer;transition:border-color var(--tr),box-shadow var(--tr),transform var(--tr);}
+    .role-card:nth-child(2){border-color:rgba(250,204,21,.75);background:radial-gradient(circle at top left,rgba(250,204,21,.18),rgba(15,23,42,1));}
+    .role-card:nth-child(3){border-color:rgba(34,197,94,.5);background:radial-gradient(circle at top left,rgba(34,197,94,.12),rgba(15,23,42,1));}
+    .role-card:nth-child(4){border-color:rgba(55,65,81,.95);background:radial-gradient(circle at top left,rgba(17,24,39,.8),rgba(15,23,42,1));}
+    .role-chip{display:inline-flex;align-items:center;padding:.15rem .6rem;border-radius:999px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.5);color:var(--text-muted);}
+    .role-title{font-size:.9rem;font-weight:700;color:#f9fafb;}
+    .role-desc{font-size:.78rem;color:var(--text-muted);}
+    .role-target{position:absolute;right:1rem;top:.9rem;font-size:.7rem;color:var(--text-muted);}
+    .role-dot{width:7px;height:7px;border-radius:50%;position:absolute;left:.7rem;top:1.2rem;}
+    .role-card:nth-child(1) .role-dot{background:#e5e7eb;}
+    .role-card:nth-child(2) .role-dot{background:#facc15;}
+    .role-card:nth-child(3) .role-dot{background:#22c55e;}
+    .role-card:nth-child(4) .role-dot{background:#111827;}
+    .role-card.active{transform:translateY(-2px);box-shadow:0 18px 45px rgba(0,0,0,.8);}
+    /* MAIN LEVELS */
+    .main{max-width:1240px;margin:0 auto;padding:1.4rem 2rem 2.3rem;}
+    .level-block{margin-bottom:2.2rem;}
+    .level-bar{display:flex;align-items:flex-start;gap:1rem;padding:1.1rem 1.4rem;border-radius:var(--radius);margin-bottom:.9rem;cursor:pointer;transition:opacity var(--tr);}
+    .lv1 .level-bar{background:linear-gradient(135deg,rgba(243,244,246,.18),rgba(15,23,42,.9));border:1px solid rgba(229,231,235,.7);}
+    .lv2 .level-bar{background:linear-gradient(135deg,rgba(250,204,21,.16),rgba(24,20,8,.96));border:1px solid rgba(250,204,21,.8);}
+    .lv3 .level-bar{background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(5,30,18,1));border:1px solid rgba(34,197,94,.8);}
+    .lv4 .level-bar{background:linear-gradient(135deg,rgba(15,23,42,1),rgba(2,6,23,1));border:1px solid rgba(31,41,55,.9);}
+    .level-num{width:40px;height:40px;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1rem;color:#fff;}
+    .lv1 .level-num{background:linear-gradient(135deg,#f9fafb,#e5e7eb);color:#020617;}
+    .lv2 .level-num{background:linear-gradient(135deg,#facc15,#eab308);}
+    .lv3 .level-num{background:linear-gradient(135deg,#16a34a,#22c55e);}
+    .lv4 .level-num{background:linear-gradient(135deg,#111827,#020617);color:#e5e7eb;}
+    .level-info{flex:1;}
+    .level-info h2{font-size:1.02rem;font-weight:700;color:#f9fafb;}
+    .level-info .sub{font-size:.8rem;color:var(--text-muted);margin-top:.08rem;}
+    .level-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.45rem;}
+    .ltag{font-size:.62rem;font-weight:700;padding:.16rem .48rem;border-radius:999px;text-transform:uppercase;letter-spacing:.06em;}
+    .lv1 .ltag{background:rgba(243,244,246,.12);color:#e5e7eb;border:1px solid rgba(229,231,235,.75);}
+    .lv2 .ltag{background:rgba(250,204,21,.18);color:#fef9c3;border:1px solid rgba(250,204,21,.75);}
+    .lv3 .ltag{background:rgba(22,163,74,.18);color:#bbf7d0;border:1px solid rgba(34,197,94,.6);}
+    .lv4 .ltag{background:rgba(17,24,39,.9);color:#e5e7eb;border:1px solid rgba(55,65,81,.95);}
+    .target-banner{display:inline-flex;align-items:center;padding:.3rem .8rem;background:rgba(15,23,42,.9);border:1px solid rgba(148,163,184,.55);border-radius:999px;margin-top:.5rem;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);}
+    .level-chevron{margin-left:auto;color:var(--text-faint);transition:transform var(--tr);flex-shrink:0;align-self:center;}
+    .level-bar.open .level-chevron{transform:rotate(180deg);}
+    .level-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,320px);gap:1rem;animation:fadeIn .25s ease;}
+    .level-body.hidden{display:none;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+    /* PANELS */
+    .modules-panel{background:var(--surface);border-radius:var(--radius);border:1px solid rgba(31,41,55,.95);overflow:hidden;}
+    .lv1 .modules-panel{background:linear-gradient(135deg,rgba(243,244,246,.14),rgba(15,23,42,1));border-color:rgba(229,231,235,.75);}
+    .panel-header{padding:.65rem 1.1rem;border-bottom:1px solid rgba(31,41,55,.95);display:flex;align-items:center;gap:.45rem;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);}
+    .module-item{display:flex;align-items:flex-start;gap:.8rem;padding:.9rem 1.05rem;border-bottom:1px solid rgba(31,41,55,.95);cursor:pointer;transition:background var(--tr);position:relative;}
+    .module-item:last-child{border-bottom:none;}
+    .module-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;opacity:0;transition:opacity var(--tr);}
+    .lv1 .module-item:hover{background:rgba(148,163,184,.12);}
+    .lv2 .module-item:hover{background:rgba(250,204,21,.10);}
+    .lv3 .module-item:hover{background:rgba(22,163,74,.08);}
+    .lv4 .module-item:hover{background:rgba(17,24,39,.85);}
+    .lv1 .module-item::before{background:#e5e7eb;}
+    .lv2 .module-item::before{background:#facc15;}
+    .lv3 .module-item::before{background:#22c55e;}
+    .lv4 .module-item::before{background:#111827;}
+    .module-item:hover::before{opacity:1;}
+    .mod-num{width:24px;height:24px;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:.05rem;}
+    .lv1 .mod-num{background:rgba(248,250,252,.18);color:#f9fafb;border:1px solid rgba(209,213,219,.9);}
+    .lv2 .mod-num{background:rgba(250,204,21,.18);color:#fef9c3;border:1px solid rgba(250,204,21,.8);}
+    .lv3 .mod-num{background:rgba(22,163,74,.18);color:#bbf7d0;border:1px solid rgba(34,197,94,.6);}
+    .lv4 .mod-num{background:rgba(15,23,42,.95);color:#e5e7eb;border:1px solid rgba(55,65,81,.95);}
+    .mod-content{flex:1;min-width:0;}
+    .mod-title{font-size:.86rem;font-weight:600;color:#f9fafb;line-height:1.35;margin-bottom:.16rem;}
+    .mod-desc{font-size:.75rem;color:var(--text-muted);line-height:1.45;}
+    .mod-meta{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.4rem;}
+    .mtag{font-size:.62rem;color:var(--text-muted);background:rgba(15,23,42,.96);border-radius:999px;padding:.15rem .42rem;border:1px solid rgba(31,41,55,.95);}
+    .mod-arrow{color:var(--text-faint);flex-shrink:0;align-self:center;transition:transform var(--tr),color var(--tr);}
+    .module-item:hover .mod-arrow{transform:translateX(3px);}
+    .lv1 .module-item:hover .mod-arrow{color:#22c55e;}
+    .lv2 .module-item:hover .mod-arrow{color:#60a5fa;}
+    .lv3 .module-item:hover .mod-arrow{color:#4ade80;}
+    .lv4 .module-item:hover .mod-arrow{color:#c4b5fd;}
+    /* SIDE PANEL */
+    .side-panel{display:flex;flex-direction:column;gap:.8rem;}
+    .side-card{background:var(--surface);border-radius:var(--radius);border:1px solid rgba(31,41,55,.95);overflow:hidden;}
+    .tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.45rem;padding:.75rem;}
+    .tool-btn{display:flex;align-items:center;gap:.45rem;padding:.42rem .55rem;border-radius:var(--radius-sm);background:var(--surface-2);border:1px solid rgba(31,41,55,.95);font-size:.7rem;color:var(--text-muted);transition:border-color var(--tr),background var(--tr),color var(--tr);}
+    .tool-btn:hover{border-color:rgba(0,166,81,.6);background:rgba(22,163,74,.12);color:#e5e7eb;}
+    .skills-list{padding:.75rem 1rem;display:flex;flex-direction:column;gap:.45rem;}
+    .skill-item{display:flex;align-items:flex-start;gap:.5rem;font-size:.76rem;color:var(--text-muted);}
+    .skill-check{width:16px;height:16px;border-radius:999px;background:rgba(22,163,74,.15);color:#bbf7d0;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.54rem;border:1px solid rgba(22,163,74,.45);margin-top:.06rem;}
+    /* SOLUTIONS BLOCK */
+    .solutions-block{border-top:1px solid rgba(31,41,55,.95);padding:1rem 1.1rem .9rem;background:radial-gradient(circle at top left,rgba(15,118,110,.22),rgba(15,23,42,1));}
+    .lv2 .solutions-block{background:radial-gradient(circle at top left,rgba(250,204,21,.2),rgba(24,20,8,1));}
+    .lv3 .solutions-block{background:radial-gradient(circle at top left,rgba(34,197,94,.2),rgba(5,30,18,1));}
+    .lv4 .solutions-block{background:radial-gradient(circle at top left,rgba(17,24,39,.9),rgba(2,6,23,1));}
+    .solutions-title{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#a5f3fc;margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem;}
+    .solutions-list{display:flex;flex-direction:column;gap:.6rem;}
+    .solution-card{padding:.6rem .75rem;border-radius:10px;background:rgba(15,23,42,.96);border:1px solid rgba(15,118,110,.9);font-size:.76rem;}
+    .solution-title{font-weight:600;color:#f9fafb;margin-bottom:.1rem;}
+    .solution-tags{margin-top:.25rem;font-size:.66rem;color:#a5f3fc;}
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.82);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity 260ms ease;}
+    .modal-overlay.active{opacity:1;pointer-events:auto;}
+    .modal-box{background:var(--surface);border-radius:18px;border:1px solid rgba(31,41,55,.95);width:100%;max-width:780px;max-height:90vh;overflow-y:auto;box-shadow:0 28px 80px rgba(0,0,0,.85);transform:translateY(18px) scale(.97);transition:transform 260ms cubic-bezier(.16,1,.3,1);}
+    .modal-overlay.active .modal-box{transform:translateY(0) scale(1);}
+    .modal-header{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid rgba(31,41,55,.95);padding:1.25rem 1.5rem .95rem;}
+    .mh-row1{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.65rem;}
+    .modal-badge{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;padding:.22rem .7rem;border-radius:999px;border:1px solid transparent;}
+    .modal-close{width:30px;height:30px;border-radius:8px;border:1px solid rgba(31,41,55,.95);background:rgba(15,23,42,.95);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .modal-close:hover{background:rgba(31,41,55,1);color:#f9fafb;}
+    .modal-title{font-size:1.18rem;font-weight:700;color:#f9fafb;line-height:1.3;}
+    .modal-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem;}
+    .modal-chip{font-size:.72rem;color:var(--text-muted);background:rgba(15,23,42,.95);border-radius:999px;padding:.22rem .6rem;border:1px solid rgba(31,41,55,.95);}
+    .modal-body{padding:1.3rem 1.5rem 1.5rem;}
+    .ms{margin-bottom:1.4rem;}
+    .ms:last-child{margin-bottom:0;}
+    .ms-title{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text-faint);margin-bottom:.6rem;padding-bottom:.35rem;border-bottom:1px solid rgba(31,41,55,.95);}
+    .m-obj{font-size:.88rem;color:#e5e7eb;line-height:1.7;padding:.7rem 1rem;background:rgba(15,23,42,.95);border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:3px solid var(--green);}
+    .m-topics{list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+    .m-topics li{display:flex;align-items:flex-start;gap:.5rem;font-size:.82rem;color:var(--text-muted);line-height:1.5;}
+    .m-topics li::before{content:"";width:6px;height:6px;border-radius:999px;margin-top:.45em;background:var(--green);flex-shrink:0;}
+    .m-outcomes{display:flex;flex-direction:column;gap:.45rem;}
+    .outcome{display:flex;align-items:flex-start;gap:.55rem;font-size:.82rem;color:#e5e7eb;padding:.45rem .7rem;background:rgba(15,23,42,.95);border-radius:var(--radius-sm);}
+    .oc-check{width:18px;height:18px;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.56rem;background:rgba(22,163,74,.14);color:#bbf7d0;border:1px solid rgba(22,163,74,.55);margin-top:.08rem;}
+    .prereq-chips,.tools-row{display:flex;gap:.4rem;flex-wrap:wrap;}
+    .pchip,.tchip{font-size:.72rem;padding:.22rem .6rem;border-radius:999px;background:rgba(15,23,42,.95);border:1px solid rgba(31,41,55,.95);color:var(--text-muted);}
+    .trainer-card{background:rgba(15,23,42,.95);border-radius:var(--radius-sm);border:1px solid rgba(31,41,55,.95);padding:.9rem 1rem;display:flex;align-items:flex-start;gap:.7rem;}
+    .t-icon{width:34px;height:34px;border-radius:12px;background:rgba(22,163,74,.16);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+    .t-role{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);}
+    .t-desc{font-size:.8rem;color:#e5e7eb;margin-top:.15rem;}
+    .assess-box{background:rgba(250,204,21,.08);border-radius:var(--radius-sm);border:1px solid rgba(250,204,21,.4);padding:.8rem 1rem;font-size:.82rem;color:#e5e7eb;display:flex;gap:.55rem;align-items:flex-start;}
+    .modal-lv1 .modal-badge{background:rgba(243,244,246,.14);color:#e5e7eb;border-color:rgba(229,231,235,.75);}
+    .modal-lv2 .modal-badge{background:rgba(250,204,21,.18);color:#fef9c3;border-color:rgba(250,204,21,.8);}
+    .modal-lv3 .modal-badge{background:rgba(22,163,74,.18);color:#bbf7d0;border-color:rgba(34,197,94,.7);}
+    .modal-lv4 .modal-badge{background:rgba(17,24,39,.9);color:#e5e7eb;border-color:rgba(55,65,81,.95);}
+    footer{text-align:center;padding:1.8rem 1rem 2.2rem;border-top:1px solid rgba(15,23,42,.9);color:var(--text-muted);font-size:.72rem;}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:#020617;}::-webkit-scrollbar-thumb{background:rgba(55,65,81,.9);border-radius:999px;}
+    @media(max-width:900px){
+      .roles-inner{grid-template-columns:1fr;gap:1.3rem;}
+      .pyramid-wrap{order:-1;}
+      .main{padding-inline:1.5rem;}
+      .level-body{grid-template-columns:1fr;}
+    }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="nav-left">
-    <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="19.5" fill="#003366"/>
-      <g fill="white">
-        <rect x="17" y="5" width="6" height="30"/>
-        <rect x="5" y="17" width="30" height="6"/>
-        <rect x="9.5" y="9.5" width="5.7" height="5.7" transform="rotate(45 12.35 12.35)"/>
-        <rect x="24.8" y="9.5" width="5.7" height="5.7" transform="rotate(45 27.65 12.35)"/>
-        <rect x="9.5" y="24.8" width="5.7" height="5.7" transform="rotate(45 12.35 27.65)"/>
-        <rect x="24.8" y="24.8" width="5.7" height="5.7" transform="rotate(45 27.65 27.65)"/>
-      </g>
-    </svg>
-    <div class="nav-brand">
-      <div class="nav-name">Digital Literacy Trail</div>
-      <div class="nav-sub">Pathfinders · IGNITE Phase</div>
+<header>
+  <div class="header-inner">
+    <div class="logo-group">
+      <div class="logo-mark">AI</div>
+      <div>
+        <div class="logo-text">Pathfinders</div>
+        <div class="logo-sub">NAPS Innovation Program</div>
+      </div>
+    </div>
+    <div class="header-pill">Digital Literacy Trail</div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="eyebrow">AI capability building · NAPS</div>
+    <h1>Digital Literacy <span>Learning Trail</span></h1>
+    <p>Everyone enters as an Everyday User. A smaller group moves into Citizen Developers, Power Users, and Product Developers as skills deepen.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="n">4</div><div class="l">Personas</div></div>
+      <div class="stat"><div class="n">16</div><div class="l">Modules</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">Levels of depth</div></div>
+      <div class="stat"><div class="n">100%</div><div class="l">Level 1 target</div></div>
     </div>
   </div>
-  <a href="pathfinders-infographic.html" class="nav-back">← Back to Program</a>
-</nav>
+</section>
 
-<!-- HERO -->
-<div class="hero reveal">
-  <div class="hero-tag">IGNITE Phase · Digital Literacy Training</div>
-  <h1>Grow the <span>Agentic AI Ecosystem</span> Together</h1>
-  <p class="hero-desc">A structured learning journey that takes every NAPS employee from AI consumer to AI builder. Each level unlocks new tools, capabilities, and the ability to deliver increasingly complex solutions — governed by a federated approach ensuring security, compliance, and observability.</p>
-</div>
-
-<!-- FUNNEL OVERVIEW -->
-<div class="funnel-section reveal">
-  <div class="funnel-wrap">
-
-    <!-- SVG Funnel -->
-    <div class="funnel-visual">
-      <svg viewBox="0 0 340 420" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Federated Governance label -->
-        <text x="22" y="220" fill="#8b949e" font-size="10" font-family="Inter,sans-serif" font-weight="600" letter-spacing="1" transform="rotate(-90,22,220)">FEDERATED GOVERNANCE</text>
-        <!-- Governance bracket -->
-        <line x1="36" y1="68" x2="36" y2="390" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 3"/>
-        <line x1="36" y1="68" x2="44" y2="68" stroke="#334155" stroke-width="1.5"/>
-        <line x1="36" y1="390" x2="44" y2="390" stroke="#334155" stroke-width="1.5"/>
-
-        <!-- Level 1: Everyday User — wide top -->
-        <g class="funnel-level-btn" id="funnel-eu" onclick="selectLevel('eu')" style="color:var(--eu)">
-          <polygon points="56,58 284,58 260,116 80,116" fill="rgba(139,148,158,0.15)" stroke="rgba(139,148,158,0.35)" stroke-width="1.5"/>
-          <text x="170" y="83" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="700" font-family="Inter,sans-serif">Everyday Users</text>
-          <text x="170" y="100" text-anchor="middle" fill="#8b949e" font-size="9" font-family="Inter,sans-serif">Interact · Consume · Prompt</text>
-        </g>
-
-        <!-- Level 2: Citizen Developer -->
-        <g class="funnel-level-btn" id="funnel-cd" onclick="selectLevel('cd')" style="color:var(--cd)">
-          <polygon points="80,124 260,124 234,188 106,188" fill="rgba(0,180,216,0.12)" stroke="rgba(0,180,216,0.4)" stroke-width="1.5"/>
-          <text x="170" y="150" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="700" font-family="Inter,sans-serif">Citizen Developers</text>
-          <text x="170" y="167" text-anchor="middle" fill="#8b949e" font-size="9" font-family="Inter,sans-serif">No-code / Low-code builders</text>
-        </g>
-
-        <!-- Level 3: Power User -->
-        <g class="funnel-level-btn" id="funnel-pu" onclick="selectLevel('pu')" style="color:var(--pu)">
-          <polygon points="106,196 234,196 206,264 134,264" fill="rgba(0,166,81,0.12)" stroke="rgba(0,166,81,0.4)" stroke-width="1.5"/>
-          <text x="170" y="224" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="700" font-family="Inter,sans-serif">Power Users</text>
-          <text x="170" y="241" text-anchor="middle" fill="#8b949e" font-size="9" font-family="Inter,sans-serif">Low-code / Pro-code hybrid</text>
-        </g>
-
-        <!-- Level 4: Product Developer -->
-        <g class="funnel-level-btn" id="funnel-pd" onclick="selectLevel('pd')" style="color:var(--pd)">
-          <polygon points="134,272 206,272 192,344 148,344" fill="rgba(168,85,247,0.12)" stroke="rgba(168,85,247,0.4)" stroke-width="1.5"/>
-          <text x="170" y="302" text-anchor="middle" fill="#e6edf3" font-size="12" font-weight="700" font-family="Inter,sans-serif">Product Developers</text>
-          <text x="170" y="319" text-anchor="middle" fill="#8b949e" font-size="9" font-family="Inter,sans-serif">Pro-code · Production systems</text>
-        </g>
-
-        <!-- Tip arrow -->
-        <polygon points="148,352 192,352 170,390" fill="rgba(168,85,247,0.2)" stroke="rgba(168,85,247,0.3)" stroke-width="1"/>
-
-        <!-- Level indicator dots (right side) -->
-        <circle cx="300" cy="87" r="5" fill="var(--eu)"/>
-        <circle cx="300" cy="156" r="5" fill="var(--cd)"/>
-        <circle cx="300" cy="230" r="5" fill="var(--pu)"/>
-        <circle cx="300" cy="308" r="5" fill="var(--pd)"/>
-      </svg>
-    </div>
-
-    <!-- Level tabs -->
-    <div class="level-tabs">
-      <div class="level-tab active" id="tab-eu" onclick="selectLevel('eu')" style="border-left-color:var(--eu)">
-        <div class="level-tab-header">
-          <span class="level-tag" style="background:rgba(139,148,158,0.15);color:var(--eu);border:1px solid rgba(139,148,158,0.3)">L1 · All Employees</span>
-          <span class="level-tab-pct">~100%</span>
+<section class="roles-section">
+  <div class="roles-inner">
+    <div class="pyramid-wrap">
+      <div class="pyramid-title">Capability funnel</div>
+      <div class="pyramid">
+        <div class="p-layer layer-1 role-everyday active" data-role="everyday" onclick="focusRole('everyday')">
+          Everyday Users
+          <span>Interact with AI tools, use predefined solutions, and write effective prompts.</span>
         </div>
-        <div class="level-tab-title">Everyday Users</div>
-        <div class="level-tab-desc">Interact with AI tools, use predefined solutions, write effective prompts. Foundation for all other levels.</div>
-      </div>
-      <div class="level-tab" id="tab-cd" onclick="selectLevel('cd')" style="border-left-color:var(--cd)">
-        <div class="level-tab-header">
-          <span class="level-tag" style="background:rgba(0,180,216,0.1);color:var(--cd);border:1px solid rgba(0,180,216,0.25)">L2 · Citizen Developers</span>
-          <span class="level-tab-pct">~40%</span>
+        <div class="p-layer layer-2 role-citizen" data-role="citizen" onclick="focusRole('citizen')">
+          Citizen Developers
+          <span>Experiment with no-code/low-code tools to boost team productivity.</span>
         </div>
-        <div class="level-tab-title">Citizen Developers</div>
-        <div class="level-tab-desc">Actively experiment with no-code/low-code tools to increase individual and team productivity.</div>
-      </div>
-      <div class="level-tab" id="tab-pu" onclick="selectLevel('pu')" style="border-left-color:var(--pu)">
-        <div class="level-tab-header">
-          <span class="level-tag" style="background:rgba(0,166,81,0.1);color:var(--pu);border:1px solid rgba(0,166,81,0.25)">L3 · Power Users</span>
-          <span class="level-tab-pct">~15%</span>
+        <div class="p-layer layer-3 role-power" data-role="power" onclick="focusRole('power')">
+          Power Users
+          <span>Build data-driven business solutions using low/pro-code tools.</span>
         </div>
-        <div class="level-tab-title">Power Users</div>
-        <div class="level-tab-desc">Build data-driven business solutions to increase organizational productivity with low/pro-code tools.</div>
-      </div>
-      <div class="level-tab" id="tab-pd" onclick="selectLevel('pd')" style="border-left-color:var(--pd)">
-        <div class="level-tab-header">
-          <span class="level-tag" style="background:rgba(168,85,247,0.1);color:var(--pd);border:1px solid rgba(168,85,247,0.25)">L4 · Product Developers</span>
-          <span class="level-tab-pct">~5%</span>
+        <div class="p-layer layer-4 role-product" data-role="product" onclick="focusRole('product')">
+          Product Developers
+          <span>Build production-grade AI systems with enterprise platforms.</span>
         </div>
-        <div class="level-tab-title">Product Developers</div>
-        <div class="level-tab-desc">Build production-grade systems and scalable AI solutions with pro-code frameworks and enterprise platforms.</div>
       </div>
     </div>
 
+    <div class="roles-cards">
+      <div class="role-card active" data-role="everyday" onclick="focusRole('everyday')">
+        <div class="role-dot"></div>
+        <div class="role-chip">L1 · All employees</div>
+        <div class="role-title">Everyday Users</div>
+        <div class="role-desc">Interact with AI tools, use predefined solutions, write effective prompts. Foundation for all levels.</div>
+        <div class="role-target">~100%</div>
+      </div>
+      <div class="role-card" data-role="citizen" onclick="focusRole('citizen')">
+        <div class="role-dot"></div>
+        <div class="role-chip">L2 · Citizen Developers</div>
+        <div class="role-title">Citizen Developers</div>
+        <div class="role-desc">Actively experiment with no-code/low-code tools to increase individual and team productivity.</div>
+        <div class="role-target">~40%</div>
+      </div>
+      <div class="role-card" data-role="power" onclick="focusRole('power')">
+        <div class="role-dot"></div>
+        <div class="role-chip">L3 · Power Users</div>
+        <div class="role-title">Power Users</div>
+        <div class="role-desc">Build data-driven business solutions to increase organizational productivity with low/pro-code tools.</div>
+        <div class="role-target">~15%</div>
+      </div>
+      <div class="role-card" data-role="product" onclick="focusRole('product')">
+        <div class="role-dot"></div>
+        <div class="role-chip">L4 · Product Developers</div>
+        <div class="role-title">Product Developers</div>
+        <div class="role-desc">Build production-grade systems and scalable AI solutions with pro-code frameworks and enterprise platforms.</div>
+        <div class="role-target">~5%</div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- ========================
-     LEVEL DETAIL PANELS
-     ======================== -->
-<div class="level-detail-section">
+<main class="main">
 
-  <!-- ── L1: EVERYDAY USER ── -->
-  <div class="detail-panel active" id="panel-eu">
-    <div class="dp-header reveal" style="color:var(--eu)">
-      <div class="dp-icon">👤</div>
-      <div class="dp-header-text">
-        <h2>Everyday Users — AI Consumer Foundation</h2>
-        <p>Every NAPS employee starts here. Build confidence using AI tools, writing effective prompts, and getting value from pre-built solutions.</p>
-        <span class="dp-badge" style="background:rgba(139,148,158,0.12);color:var(--eu);border:1px solid rgba(139,148,158,0.25)">Target: 100% of NAPS workforce · ~6h total learning</span>
+<!-- ==================== LEVEL 1 ==================== -->
+<section class="level-block lv1" data-role="everyday">
+  <div class="level-bar open" onclick="toggleLevel('lv1',this)">
+    <div class="level-num">1</div>
+    <div class="level-info">
+      <h2>Everyday Users — AI Consumer Foundation</h2>
+      <div class="sub">Every NAPS employee starts here. Build confidence using AI tools, writing effective prompts, and getting value from pre-built solutions.</div>
+      <div class="level-tags">
+        <span class="ltag">Mandatory for all</span>
+        <span class="ltag">~6h Total</span>
+        <span class="ltag">4 Modules</span>
       </div>
+      <div class="target-banner">Target: 100% of NAPS workforce · ~6h total learning</div>
     </div>
-
-    <div class="dp-grid reveal">
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">📚</span> Learning Modules</div>
-        <div class="module-list">
-          <div class="module-item">
-            <div class="module-num" style="background:var(--eu)">1</div>
-            <div class="module-body">
-              <div class="module-name">What is AI? — Demystifying the Basics</div>
-              <div class="module-desc">Gen AI, ML, and automation concepts in plain language. Real Bayer use cases.</div>
-              <div class="module-duration">⏱ 45 min · e-Learning</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--eu)">2</div>
-            <div class="module-body">
-              <div class="module-name">Prompting That Works</div>
-              <div class="module-desc">How to write clear, effective prompts. Context, constraints, and examples for NAPS tasks.</div>
-              <div class="module-duration">⏱ 60 min · Interactive</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--eu)">3</div>
-            <div class="module-body">
-              <div class="module-name">Responsible AI at Bayer</div>
-              <div class="module-desc">Data privacy, what NOT to share with AI, compliance boundaries, and the Bayer AI policy.</div>
-              <div class="module-duration">⏱ 30 min · Mandatory</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--eu)">4</div>
-            <div class="module-body">
-              <div class="module-name">Using myGenAssist &amp; MS Copilot Daily</div>
-              <div class="module-desc">Hands-on scenarios: summarize documents, draft emails, analyze data, generate reports.</div>
-              <div class="module-duration">⏱ 90 min · Hands-on</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">🛠️</span> Tools &amp; Platforms</div>
-        <div class="tools-grid" style="color:var(--eu)">
-          <div class="tool-pill"><span class="tool-icon">🤖</span> myGenAssist</div>
-          <div class="tool-pill"><span class="tool-icon">🪟</span> MS Copilot (M365)</div>
-          <div class="tool-pill"><span class="tool-icon">🔍</span> Perplexity</div>
-          <div class="tool-pill"><span class="tool-icon">📊</span> Copilot in Excel</div>
-          <div class="tool-pill"><span class="tool-icon">📝</span> Copilot in Word</div>
-          <div class="tool-pill"><span class="tool-icon">📧</span> Copilot in Outlook</div>
-        </div>
-        <div style="margin-top:16px">
-          <div class="dp-card-title"><span class="icon">✅</span> Skills You'll Have</div>
-          <div class="skills-list">
-            <div class="skill-item"><div class="skill-check" style="background:var(--eu)">✓</div> Write multi-turn prompts for complex tasks</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--eu)">✓</div> Summarize meetings, reports, and documents</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--eu)">✓</div> Identify AI opportunities in your daily work</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--eu)">✓</div> Know what data is safe to use with AI tools</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--eu)">✓</div> Submit ideas to the Pathfinders intake form</div>
-          </div>
-        </div>
-      </div>
+    <svg class="level-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l5 5 5-5"/></svg>
+  </div>
+  <div class="level-body" id="lv1">
+    <div class="modules-panel">
+      <div class="panel-header">📚 Learning modules</div>
+      <div class="module-item" onclick="openModal('m1')"><div class="mod-num">1</div><div class="mod-content"><div class="mod-title">What is AI? — Demystifying the Basics</div><div class="mod-desc">Gen AI, ML, and automation concepts in plain language with real Bayer use cases.</div><div class="mod-meta"><span class="mtag">⏱ 45 min</span><span class="mtag">e-Learning (self-paced)</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('m2')"><div class="mod-num">2</div><div class="mod-content"><div class="mod-title">Prompting That Works</div><div class="mod-desc">How to write clear, effective prompts with context, constraints, and examples for NAPS tasks.</div><div class="mod-meta"><span class="mtag">⏱ 60 min</span><span class="mtag">Interactive</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('m3')"><div class="mod-num">3</div><div class="mod-content"><div class="mod-title">Responsible AI at Bayer</div><div class="mod-desc">Data privacy, what NOT to share with AI, compliance boundaries, and the Bayer AI policy.</div><div class="mod-meta"><span class="mtag">⏱ 30 min</span><span class="mtag">Mandatory</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('m4')"><div class="mod-num">4</div><div class="mod-content"><div class="mod-title">Using myGenAssist &amp; MS Copilot Daily</div><div class="mod-desc">Hands-on scenarios: summarize documents, draft emails, analyze data, and generate reports.</div><div class="mod-meta"><span class="mtag">⏱ 90 min</span><span class="mtag">Hands-on lab</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
     </div>
-
-    <div class="dp-card reveal">
-      <div class="dp-card-title"><span class="icon">💡</span> What You Can Do After This Level</div>
-      <div class="solutions-list">
-        <div class="solution-item">
-          <div class="solution-icon">📋</div>
-          <div class="solution-body">
-            <div class="solution-name">AI-assisted meeting summaries &amp; action items</div>
-            <div class="solution-desc">Use Copilot in Teams to auto-summarize every meeting and extract action items — no manual notes needed.</div>
-            <span class="solution-tier" style="background:rgba(139,148,158,0.12);color:var(--eu)">Personal Productivity</span>
-          </div>
+    <div class="side-panel">
+      <div class="side-card">
+        <div class="panel-header">🛠 Tools &amp; platforms</div>
+        <div class="tools-grid">
+          <div class="tool-btn"><span>🤖</span>myGenAssist</div>
+          <div class="tool-btn"><span>💼</span>MS Copilot (M365)</div>
+          <div class="tool-btn"><span>🔎</span>Perplexity</div>
+          <div class="tool-btn"><span>📊</span>Copilot in Excel</div>
+          <div class="tool-btn"><span>📃</span>Copilot in Word</div>
+          <div class="tool-btn"><span>📧</span>Copilot in Outlook</div>
         </div>
-        <div class="solution-item">
-          <div class="solution-icon">🔍</div>
-          <div class="solution-body">
-            <div class="solution-name">Research &amp; knowledge retrieval with Perplexity</div>
-            <div class="solution-desc">Quickly synthesize technical documentation, regulatory updates, or supplier information using AI search.</div>
-            <span class="solution-tier" style="background:rgba(139,148,158,0.12);color:var(--eu)">Personal Productivity</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">✍️</div>
-          <div class="solution-body">
-            <div class="solution-name">First-draft generation for reports &amp; SOPs</div>
-            <div class="solution-desc">Use myGenAssist to generate first drafts of standard operating procedures, site reports, or communications.</div>
-            <span class="solution-tier" style="background:rgba(139,148,158,0.12);color:var(--eu)">Personal Productivity</span>
-          </div>
+      </div>
+      <div class="side-card">
+        <div class="panel-header">✅ Skills you'll have</div>
+        <div class="skills-list">
+          <div class="skill-item"><div class="skill-check">✓</div>Write multi-turn prompts for complex tasks.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Summarize meetings, reports, and documents.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Identify AI opportunities in everyday work.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Know what data is safe to use with AI tools.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Submit ideas to the Pathfinders intake form.</div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ── L2: CITIZEN DEVELOPER ── -->
-  <div class="detail-panel" id="panel-cd">
-    <div class="dp-header reveal" style="color:var(--cd)">
-      <div class="dp-icon">🧱</div>
-      <div class="dp-header-text">
-        <h2>Citizen Developers — No-Code / Low-Code Builders</h2>
-        <p>Build your first automations and AI-assisted workflows without writing code. Transform repetitive tasks into automated processes for your team.</p>
-        <span class="dp-badge" style="background:rgba(0,180,216,0.1);color:var(--cd);border:1px solid rgba(0,180,216,0.25)">Target: ~40% of NAPS workforce · ~16h total learning · Prereq: L1</span>
+<!-- ==================== LEVEL 2 ==================== -->
+<section class="level-block lv2" data-role="citizen">
+  <div class="level-bar" onclick="toggleLevel('lv2',this)">
+    <div class="level-num">2</div>
+    <div class="level-info">
+      <h2>Citizen Developers — No-Code / Low-Code Builders</h2>
+      <div class="sub">Build your first automations and AI-assisted workflows without writing code. Transform repetitive tasks into automated processes.</div>
+      <div class="level-tags">
+        <span class="ltag">Citizen Developers</span>
+        <span class="ltag">~16h Total</span>
+        <span class="ltag">5 Modules</span>
+        <span class="ltag">Prereq: L1</span>
       </div>
     </div>
-
-    <div class="dp-grid reveal">
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">📚</span> Learning Modules</div>
-        <div class="module-list">
-          <div class="module-item">
-            <div class="module-num" style="background:var(--cd)">1</div>
-            <div class="module-body">
-              <div class="module-name">Power Automate Fundamentals</div>
-              <div class="module-desc">Build your first automated flows: triggers, actions, conditions. Practical NAPS scenarios (approval routing, notifications).</div>
-              <div class="module-duration">⏱ 3h · Hands-on Lab</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--cd)">2</div>
-            <div class="module-body">
-              <div class="module-name">SharePoint &amp; Power Apps Basics</div>
-              <div class="module-desc">Create simple forms, track data, and build lightweight apps that replace shared Excel files.</div>
-              <div class="module-duration">⏱ 3h · Hands-on Lab</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--cd)">3</div>
-            <div class="module-body">
-              <div class="module-name">AI Builder in Power Platform</div>
-              <div class="module-desc">Use pre-built AI models for document processing, form recognition, and predictions — no ML expertise needed.</div>
-              <div class="module-duration">⏱ 2h · Demo + Practice</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--cd)">4</div>
-            <div class="module-body">
-              <div class="module-name">Copilot Studio — Build Your First Bot</div>
-              <div class="module-desc">Create a simple FAQ chatbot or guided workflow assistant for your team using MS Copilot Studio.</div>
-              <div class="module-duration">⏱ 3h · Project-based</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--cd)">5</div>
-            <div class="module-body">
-              <div class="module-name">Governance &amp; Handoff to CoE</div>
-              <div class="module-desc">When to escalate to Tier 2. How to document and hand off solutions. Naming conventions and testing basics.</div>
-              <div class="module-duration">⏱ 1h · Online</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">🛠️</span> Tools &amp; Platforms</div>
-        <div class="tools-grid" style="color:var(--cd)">
-          <div class="tool-pill"><span class="tool-icon">⚡</span> Power Automate</div>
-          <div class="tool-pill"><span class="tool-icon">📱</span> Power Apps</div>
-          <div class="tool-pill"><span class="tool-icon">🤖</span> MS Copilot Studio</div>
-          <div class="tool-pill"><span class="tool-icon">🧠</span> AI Builder</div>
-          <div class="tool-pill"><span class="tool-icon">📁</span> SharePoint</div>
-          <div class="tool-pill"><span class="tool-icon">🪟</span> myGenAssist</div>
-        </div>
-        <div style="margin-top:16px">
-          <div class="dp-card-title"><span class="icon">✅</span> Skills You'll Have</div>
-          <div class="skills-list">
-            <div class="skill-item"><div class="skill-check" style="background:var(--cd)">✓</div> Build automated approval and notification flows</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--cd)">✓</div> Create simple data collection apps without IT</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--cd)">✓</div> Deploy a basic Copilot chatbot for your team</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--cd)">✓</div> Use AI Builder for document processing tasks</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--cd)">✓</div> Know when to escalate vs. self-serve</div>
-          </div>
+    <svg class="level-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l5 5 5-5"/></svg>
+  </div>
+  <div class="level-body hidden" id="lv2">
+    <div class="modules-panel">
+      <div class="panel-header">📚 Learning modules</div>
+      <div class="module-item" onclick="openModal('c1')"><div class="mod-num">1</div><div class="mod-content"><div class="mod-title">Power Automate Fundamentals</div><div class="mod-desc">Triggers, actions, conditions, and approvals using real NAPS scenarios (notifications, routing).</div><div class="mod-meta"><span class="mtag">⏱ 3h</span><span class="mtag">Hands-on lab</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('c2')"><div class="mod-num">2</div><div class="mod-content"><div class="mod-title">SharePoint &amp; Power Apps Basics</div><div class="mod-desc">Create simple forms, track data, and build lightweight apps that replace shared Excel files.</div><div class="mod-meta"><span class="mtag">⏱ 3h</span><span class="mtag">Hands-on lab</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('c3')"><div class="mod-num">3</div><div class="mod-content"><div class="mod-title">AI Builder in Power Platform</div><div class="mod-desc">Use pre-built AI models for document processing, form recognition, and prediction — no ML expertise required.</div><div class="mod-meta"><span class="mtag">⏱ 2h</span><span class="mtag">Demo + practice</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('c4')"><div class="mod-num">4</div><div class="mod-content"><div class="mod-title">Copilot Studio — Build Your First Bot</div><div class="mod-desc">Create a simple FAQ chatbot or guided workflow assistant for your team using MS Copilot Studio.</div><div class="mod-meta"><span class="mtag">⏱ 3h</span><span class="mtag">Project-based</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('c5')"><div class="mod-num">5</div><div class="mod-content"><div class="mod-title">Governance &amp; Handoff to CoE</div><div class="mod-desc">When to escalate to Tier 2, how to document and hand off solutions, and naming conventions.</div><div class="mod-meta"><span class="mtag">⏱ 1h</span><span class="mtag">Online</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="solutions-block">
+        <div class="solutions-title">💡 Solutions you can build (Tier 1–2)</div>
+        <div class="solutions-list">
+          <div class="solution-card"><div class="solution-title">RPA bot for SAP data entry &amp; extraction</div><div>Automate repetitive SAP transactions — inventory updates, batch record entry, report extraction.</div><div class="solution-tags">Power Automate RPA · Tier 2</div></div>
+          <div class="solution-card"><div class="solution-title">Real-time seed yield &amp; quality dashboard</div><div>Connect production data sources to Power BI — live dashboards for site managers replacing Excel reports.</div><div class="solution-tags">Power BI · Tier 1–2</div></div>
+          <div class="solution-card"><div class="solution-title">AI-powered supply chain exception alerts</div><div>Automated monitoring of inventory thresholds with AI-written exception summaries.</div><div class="solution-tags">Power Automate + Copilot · Tier 2</div></div>
+          <div class="solution-card"><div class="solution-title">Operational intelligence agent in Teams</div><div>Teams-embedded agent that answers questions about production status and escalates issues.</div><div class="solution-tags">Copilot Studio + Power BI · Tier 2</div></div>
         </div>
       </div>
     </div>
-
-    <div class="dp-card reveal">
-      <div class="dp-card-title"><span class="icon">💡</span> Solutions You Can Build (Tier 1 — Quick Wins)</div>
-      <div class="solutions-list">
-        <div class="solution-item">
-          <div class="solution-icon">📬</div>
-          <div class="solution-body">
-            <div class="solution-name">Automated email routing &amp; approval workflows</div>
-            <div class="solution-desc">Replace manual forwarding with Power Automate flows that route requests, collect approvals, and send confirmations automatically.</div>
-            <span class="solution-tier" style="background:rgba(0,180,216,0.1);color:var(--cd)">Power Automate · Tier 1</span>
-          </div>
+    <div class="side-panel">
+      <div class="side-card">
+        <div class="panel-header">🛠 Tools &amp; platforms</div>
+        <div class="tools-grid">
+          <div class="tool-btn"><span>⚙️</span>Power Automate</div>
+          <div class="tool-btn"><span>🧩</span>Power Apps</div>
+          <div class="tool-btn"><span>🤖</span>MS Copilot Studio</div>
+          <div class="tool-btn"><span>🧠</span>AI Builder</div>
+          <div class="tool-btn"><span>📁</span>SharePoint</div>
+          <div class="tool-btn"><span>🤖</span>myGenAssist</div>
         </div>
-        <div class="solution-item">
-          <div class="solution-icon">📋</div>
-          <div class="solution-body">
-            <div class="solution-name">Digital inspection &amp; checklist forms</div>
-            <div class="solution-desc">Replace paper-based or Excel checklists with Power Apps forms — data goes straight to SharePoint, no manual re-entry.</div>
-            <span class="solution-tier" style="background:rgba(0,180,216,0.1);color:var(--cd)">Power Apps · Tier 1</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">🤖</div>
-          <div class="solution-body">
-            <div class="solution-name">FAQ chatbot for site procedures</div>
-            <div class="solution-desc">A Copilot Studio bot that answers common questions about SOPs, safety procedures, or HR policies — available 24/7.</div>
-            <span class="solution-tier" style="background:rgba(0,180,216,0.1);color:var(--cd)">Copilot Studio · Tier 1</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">📄</div>
-          <div class="solution-body">
-            <div class="solution-name">Automated document processing with AI Builder</div>
-            <div class="solution-desc">Extract key fields from invoices, delivery slips, or quality forms automatically and push to SharePoint lists.</div>
-            <span class="solution-tier" style="background:rgba(0,180,216,0.1);color:var(--cd)">AI Builder · Tier 1</span>
-          </div>
+      </div>
+      <div class="side-card">
+        <div class="panel-header">✅ Skills you'll have</div>
+        <div class="skills-list">
+          <div class="skill-item"><div class="skill-check">✓</div>Build automated approval and notification flows.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Create simple data collection apps without IT.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Deploy a basic Copilot chatbot for your team.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Use AI Builder for document processing tasks.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Know when to escalate vs. self-serve.</div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ── L3: POWER USER ── -->
-  <div class="detail-panel" id="panel-pu">
-    <div class="dp-header reveal" style="color:var(--pu)">
-      <div class="dp-icon">⚡</div>
-      <div class="dp-header-text">
-        <h2>Power Users — Data-Driven Solution Builders</h2>
-        <p>Build business intelligence solutions, advanced automations, and AI-enhanced processes that drive organizational productivity. Bridge between business and IT.</p>
-        <span class="dp-badge" style="background:rgba(0,166,81,0.1);color:var(--pu);border:1px solid rgba(0,166,81,0.25)">Target: ~15% of NAPS workforce · ~30h total learning · Prereq: L1 + L2</span>
+<!-- ==================== LEVEL 3 ==================== -->
+<section class="level-block lv3" data-role="power">
+  <div class="level-bar" onclick="toggleLevel('lv3',this)">
+    <div class="level-num">3</div>
+    <div class="level-info">
+      <h2>Power Users — Data-Driven Solution Builders</h2>
+      <div class="sub">Build business intelligence solutions, advanced automations, and AI-enhanced processes that drive organizational productivity. Bridge between business and IT.</div>
+      <div class="level-tags">
+        <span class="ltag">Power Users</span>
+        <span class="ltag">~30h Total</span>
+        <span class="ltag">5 Modules</span>
+        <span class="ltag">Prereq: L1 + L2</span>
       </div>
+      <div class="target-banner">Target: ~15% of NAPS workforce · ~30h total learning · Prereq: L1 + L2</div>
     </div>
-
-    <div class="dp-grid reveal">
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">📚</span> Learning Modules</div>
-        <div class="module-list">
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pu)">1</div>
-            <div class="module-body">
-              <div class="module-name">Advanced Power Automate — RPA &amp; Cloud Flows</div>
-              <div class="module-desc">Desktop flows, robotic process automation, error handling, and building enterprise-grade automation pipelines.</div>
-              <div class="module-duration">⏱ 5h · Project-based Lab</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pu)">2</div>
-            <div class="module-body">
-              <div class="module-name">Power BI — From Data to Decisions</div>
-              <div class="module-desc">Data modeling, DAX basics, dashboard design. Connect to SAP, SharePoint, SQL. Build actionable operational dashboards.</div>
-              <div class="module-duration">⏱ 8h · Hands-on + Project</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pu)">3</div>
-            <div class="module-body">
-              <div class="module-name">Copilot Studio — Advanced Agents</div>
-              <div class="module-desc">Multi-turn agents, API connections, Teams integration, authentication, and deploying to production environments.</div>
-              <div class="module-duration">⏱ 4h · Hands-on</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pu)">4</div>
-            <div class="module-body">
-              <div class="module-name">Gemini Enterprise &amp; Perplexity for Business</div>
-              <div class="module-desc">Advanced AI research, data synthesis, and workflow integration. Building systematic AI-assisted processes.</div>
-              <div class="module-duration">⏱ 3h · Workshop</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pu)">5</div>
-            <div class="module-body">
-              <div class="module-name">AI Solution Design &amp; Business Case</div>
-              <div class="module-desc">How to scope a Tier 2 project, quantify ROI, write a business case, and work with the CoE team.</div>
-              <div class="module-duration">⏱ 3h · Workshop</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">🛠️</span> Tools &amp; Platforms</div>
-        <div class="tools-grid" style="color:var(--pu)">
-          <div class="tool-pill"><span class="tool-icon">⚡</span> Power Automate (RPA)</div>
-          <div class="tool-pill"><span class="tool-icon">📊</span> Power BI</div>
-          <div class="tool-pill"><span class="tool-icon">🤖</span> MS Copilot Studio</div>
-          <div class="tool-pill"><span class="tool-icon">💎</span> Gemini Enterprise</div>
-          <div class="tool-pill"><span class="tool-icon">🔍</span> Perplexity</div>
-          <div class="tool-pill"><span class="tool-icon">🔷</span> Azure AI Foundry</div>
-          <div class="tool-pill"><span class="tool-icon">📱</span> Power Apps (Advanced)</div>
-          <div class="tool-pill"><span class="tool-icon">🗄️</span> Dataverse / SQL basics</div>
-        </div>
-        <div style="margin-top:16px">
-          <div class="dp-card-title"><span class="icon">✅</span> Skills You'll Have</div>
-          <div class="skills-list">
-            <div class="skill-item"><div class="skill-check" style="background:var(--pu)">✓</div> Build RPA bots for repetitive desktop tasks</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pu)">✓</div> Design and publish Power BI operational dashboards</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pu)">✓</div> Create advanced multi-step agents in Copilot Studio</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pu)">✓</div> Quantify AI solution value and write business cases</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pu)">✓</div> Lead Tier 1–2 solution design with CoE support</div>
-          </div>
+    <svg class="level-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l5 5 5-5"/></svg>
+  </div>
+  <div class="level-body hidden" id="lv3">
+    <div class="modules-panel">
+      <div class="panel-header">📚 Learning modules</div>
+      <div class="module-item" onclick="openModal('p1')"><div class="mod-num">1</div><div class="mod-content"><div class="mod-title">Advanced Power Automate — RPA &amp; Cloud Flows</div><div class="mod-desc">Desktop flows, robotic process automation, error handling, and building enterprise-grade automation pipelines.</div><div class="mod-meta"><span class="mtag">⏱ 5h</span><span class="mtag">Project-based lab</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('p2')"><div class="mod-num">2</div><div class="mod-content"><div class="mod-title">Power BI — From Data to Decisions</div><div class="mod-desc">Data modeling, DAX basics, dashboard design. Connect to SAP, SharePoint, SQL. Build actionable operational dashboards.</div><div class="mod-meta"><span class="mtag">⏱ 8h</span><span class="mtag">Hands-on + project</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('p3')"><div class="mod-num">3</div><div class="mod-content"><div class="mod-title">Copilot Studio — Advanced Agents</div><div class="mod-desc">Multi-turn agents, API connections, Teams integration, authentication, and deploying to production environments.</div><div class="mod-meta"><span class="mtag">⏱ 4h</span><span class="mtag">Hands-on</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('p4')"><div class="mod-num">4</div><div class="mod-content"><div class="mod-title">Gemini Enterprise &amp; Perplexity for Business</div><div class="mod-desc">Advanced AI research, data synthesis, and workflow integration. Building systematic AI-assisted processes.</div><div class="mod-meta"><span class="mtag">⏱ 3h</span><span class="mtag">Workshop</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('p5')"><div class="mod-num">5</div><div class="mod-content"><div class="mod-title">AI Solution Design &amp; Business Case</div><div class="mod-desc">How to scope a Tier 2 project, quantify ROI, write a business case, and work with the CoE team.</div><div class="mod-meta"><span class="mtag">⏱ 3h</span><span class="mtag">Workshop</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="solutions-block">
+        <div class="solutions-title">💡 Solutions you can build (Tier 1–2)</div>
+        <div class="solutions-list">
+          <div class="solution-card"><div class="solution-title">End-to-end RPA pipeline for batch record processing</div><div>Automate document intake, validation, and posting using RPA plus AI document understanding.</div><div class="solution-tags">Power Automate RPA + AI Builder · Tier 2</div></div>
+          <div class="solution-card"><div class="solution-title">Executive production performance cockpit</div><div>One Power BI hub combining yield, quality, and downtime metrics across sites.</div><div class="solution-tags">Power BI + Dataverse · Tier 2</div></div>
+          <div class="solution-card"><div class="solution-title">AI exception-handling assistant in Teams</div><div>Copilot Studio agent that explains anomalies, suggests actions, and routes tasks to owners.</div><div class="solution-tags">Copilot Studio + Power Apps · Tier 2</div></div>
         </div>
       </div>
     </div>
-
-    <div class="dp-card reveal">
-      <div class="dp-card-title"><span class="icon">💡</span> Solutions You Can Build (Tier 1–2)</div>
-      <div class="solutions-list">
-        <div class="solution-item">
-          <div class="solution-icon">🤖</div>
-          <div class="solution-body">
-            <div class="solution-name">RPA bot for SAP data entry &amp; extraction</div>
-            <div class="solution-desc">Automate repetitive SAP transactions — inventory updates, batch record entry, report extraction — using Power Automate Desktop.</div>
-            <span class="solution-tier" style="background:rgba(0,166,81,0.1);color:var(--pu)">Power Automate RPA · Tier 2</span>
-          </div>
+    <div class="side-panel">
+      <div class="side-card">
+        <div class="panel-header">🛠 Tools &amp; platforms</div>
+        <div class="tools-grid">
+          <div class="tool-btn"><span>⚙️</span>Power Automate (RPA)</div>
+          <div class="tool-btn"><span>📊</span>Power BI</div>
+          <div class="tool-btn"><span>🤖</span>MS Copilot Studio</div>
+          <div class="tool-btn"><span>🔎</span>Gemini Enterprise</div>
+          <div class="tool-btn"><span>🔍</span>Perplexity</div>
+          <div class="tool-btn"><span>☁️</span>Azure AI Foundry</div>
+          <div class="tool-btn"><span>🧱</span>Power Apps (Advanced)</div>
+          <div class="tool-btn"><span>🗄️</span>Dataverse / SQL basics</div>
         </div>
-        <div class="solution-item">
-          <div class="solution-icon">📊</div>
-          <div class="solution-body">
-            <div class="solution-name">Real-time seed yield &amp; quality dashboard</div>
-            <div class="solution-desc">Connect production data sources to Power BI — live dashboards for site managers replacing weekly Excel reports.</div>
-            <span class="solution-tier" style="background:rgba(0,166,81,0.1);color:var(--pu)">Power BI · Tier 1–2</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">🧠</div>
-          <div class="solution-body">
-            <div class="solution-name">AI-powered supply chain exception alerts</div>
-            <div class="solution-desc">Automated monitoring of inventory thresholds with AI-written exception summaries sent to relevant managers.</div>
-            <span class="solution-tier" style="background:rgba(0,166,81,0.1);color:var(--pu)">Power Automate + Copilot · Tier 2</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">💬</div>
-          <div class="solution-body">
-            <div class="solution-name">Operational intelligence agent in Teams</div>
-            <div class="solution-desc">A Teams-embedded agent that answers questions about production status, pulls live data from Power BI, and escalates issues.</div>
-            <span class="solution-tier" style="background:rgba(0,166,81,0.1);color:var(--pu)">Copilot Studio + Power BI · Tier 2</span>
-          </div>
+      </div>
+      <div class="side-card">
+        <div class="panel-header">✅ Skills you'll have</div>
+        <div class="skills-list">
+          <div class="skill-item"><div class="skill-check">✓</div>Build RPA bots for repetitive desktop tasks.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Design and publish Power BI operational dashboards.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Create advanced multi-step agents in Copilot Studio.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Quantify AI solution value and write business cases.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Lead Tier 1–2 solution design with CoE support.</div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ── L4: PRODUCT DEVELOPER ── -->
-  <div class="detail-panel" id="panel-pd">
-    <div class="dp-header reveal" style="color:var(--pd)">
-      <div class="dp-icon">🚀</div>
-      <div class="dp-header-text">
-        <h2>Product Developers — Production AI Systems</h2>
-        <p>Build enterprise-grade, production-ready AI systems. Work on Tier 3 strategic bets with full-stack development, ML modeling, and enterprise platform integration.</p>
-        <span class="dp-badge" style="background:rgba(168,85,247,0.1);color:var(--pd);border:1px solid rgba(168,85,247,0.25)">Target: ~5% of NAPS + CoE team · ~60h total learning · Prereq: L1+L2+L3 + coding background</span>
+<!-- ==================== LEVEL 4 ==================== -->
+<section class="level-block lv4" data-role="product">
+  <div class="level-bar" onclick="toggleLevel('lv4',this)">
+    <div class="level-num">4</div>
+    <div class="level-info">
+      <h2>Product Developers — Production AI Systems</h2>
+      <div class="sub">Build enterprise-grade, production-ready AI systems. Work on Tier 3 strategic bets with full-stack development, ML modeling, and enterprise platform integration.</div>
+      <div class="level-tags">
+        <span class="ltag">Product Developers</span>
+        <span class="ltag">~60h Total</span>
+        <span class="ltag">5 Modules</span>
+        <span class="ltag">Prereq: L1+L2+L3 + coding background</span>
       </div>
+      <div class="target-banner">Target: ~5% of NAPS + CoE team · ~60h total learning · Prereq: L1+L2+L3 + coding background</div>
     </div>
-
-    <div class="dp-grid reveal">
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">📚</span> Learning Modules</div>
-        <div class="module-list">
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pd)">1</div>
-            <div class="module-body">
-              <div class="module-name">Python for AI &amp; Data Engineering</div>
-              <div class="module-desc">Pandas, NumPy, API calls, data pipelines. SQL fundamentals. Building data-ready infrastructure.</div>
-              <div class="module-duration">⏱ 12h · Self-paced + Mentoring</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pd)">2</div>
-            <div class="module-body">
-              <div class="module-name">Azure AI Foundry &amp; LLM Integration</div>
-              <div class="module-desc">Deploy and fine-tune models on Azure. RAG patterns, vector databases, prompt engineering at scale, and Responsible AI toolkit.</div>
-              <div class="module-duration">⏱ 16h · Lab + Certification</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pd)">3</div>
-            <div class="module-body">
-              <div class="module-name">Agentic AI with n8n &amp; Bedrock AgentCore</div>
-              <div class="module-desc">Multi-agent orchestration, tool calling, memory systems, and agentic workflow design using n8n and AWS Bedrock.</div>
-              <div class="module-duration">⏱ 10h · Workshop + Project</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pd)">4</div>
-            <div class="module-body">
-              <div class="module-name">Google Vertex AI &amp; Databricks for ML</div>
-              <div class="module-desc">ML model training, feature engineering, and MLOps. Databricks for large-scale data processing and model deployment.</div>
-              <div class="module-duration">⏱ 14h · Certification path</div>
-            </div>
-          </div>
-          <div class="module-item">
-            <div class="module-num" style="background:var(--pd)">5</div>
-            <div class="module-body">
-              <div class="module-name">Enterprise Architecture &amp; Microsoft Entra Agent ID</div>
-              <div class="module-desc">AI agent identity management, access control, observability, and integrating into Bayer's enterprise architecture.</div>
-              <div class="module-duration">⏱ 5h · Workshop</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="dp-card">
-        <div class="dp-card-title"><span class="icon">🛠️</span> Tools &amp; Platforms</div>
-        <div class="tools-grid" style="color:var(--pd)">
-          <div class="tool-pill"><span class="tool-icon">🔷</span> Azure AI Foundry</div>
-          <div class="tool-pill"><span class="tool-icon">🌐</span> Google Vertex AI</div>
-          <div class="tool-pill"><span class="tool-icon">🟠</span> Bedrock AgentCore</div>
-          <div class="tool-pill"><span class="tool-icon">🔴</span> Databricks</div>
-          <div class="tool-pill"><span class="tool-icon">🔗</span> n8n</div>
-          <div class="tool-pill"><span class="tool-icon">🔑</span> MS Entra Agent ID</div>
-          <div class="tool-pill"><span class="tool-icon">🐍</span> Python / SQL</div>
-          <div class="tool-pill"><span class="tool-icon">🔌</span> SAP API / REST</div>
-          <div class="tool-pill"><span class="tool-icon">❄️</span> Snowflake</div>
-        </div>
-        <div style="margin-top:16px">
-          <div class="dp-card-title"><span class="icon">✅</span> Skills You'll Have</div>
-          <div class="skills-list">
-            <div class="skill-item"><div class="skill-check" style="background:var(--pd)">✓</div> Deploy and fine-tune LLMs on Azure AI Foundry</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pd)">✓</div> Build multi-agent orchestration systems with n8n</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pd)">✓</div> Train and deploy predictive ML models at scale</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pd)">✓</div> Architect secure, observable AI systems for production</div>
-            <div class="skill-item"><div class="skill-check" style="background:var(--pd)">✓</div> Lead Tier 3 strategic initiatives end-to-end</div>
-          </div>
+    <svg class="level-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l5 5 5-5"/></svg>
+  </div>
+  <div class="level-body hidden" id="lv4">
+    <div class="modules-panel">
+      <div class="panel-header">📚 Learning modules</div>
+      <div class="module-item" onclick="openModal('d1')"><div class="mod-num">1</div><div class="mod-content"><div class="mod-title">Python for AI &amp; Data Engineering</div><div class="mod-desc">Pandas, NumPy, API calls, data pipelines. SQL fundamentals. Building data-ready infrastructure.</div><div class="mod-meta"><span class="mtag">⏱ 12h</span><span class="mtag">Self-paced + mentoring</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('d2')"><div class="mod-num">2</div><div class="mod-content"><div class="mod-title">Azure AI Foundry &amp; LLM Integration</div><div class="mod-desc">Deploy and fine-tune models on Azure. RAG patterns, vector databases, prompt engineering at scale, and Responsible AI toolkit.</div><div class="mod-meta"><span class="mtag">⏱ 16h</span><span class="mtag">Lab + certification</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('d3')"><div class="mod-num">3</div><div class="mod-content"><div class="mod-title">Agentic AI with n8n &amp; Bedrock AgentCore</div><div class="mod-desc">Multi-agent orchestration, tool calling, memory systems, and agentic workflow design using n8n and AWS Bedrock.</div><div class="mod-meta"><span class="mtag">⏱ 10h</span><span class="mtag">Workshop + project</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('d4')"><div class="mod-num">4</div><div class="mod-content"><div class="mod-title">Google Vertex AI &amp; Databricks for ML</div><div class="mod-desc">ML model training, feature engineering, and MLOps. Databricks for large-scale data processing and model deployment.</div><div class="mod-meta"><span class="mtag">⏱ 14h</span><span class="mtag">Certification path</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="module-item" onclick="openModal('d5')"><div class="mod-num">5</div><div class="mod-content"><div class="mod-title">Enterprise Architecture &amp; Microsoft Entra Agent ID</div><div class="mod-desc">AI agent identity management, access control, observability, and integrating into Bayer's enterprise architecture.</div><div class="mod-meta"><span class="mtag">⏱ 5h</span><span class="mtag">Workshop</span></div></div><svg class="mod-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 7h10M7 2l5 5-5 5"/></svg></div>
+      <div class="solutions-block">
+        <div class="solutions-title">💡 Solutions you can build (Tier 2–3)</div>
+        <div class="solutions-list">
+          <div class="solution-card"><div class="solution-title">Production LLM copilots for operations</div><div>Secure copilots that answer complex questions using internal NAPS data with RAG and full audit trails.</div><div class="solution-tags">Azure AI Foundry + Databricks · Tier 3</div></div>
+          <div class="solution-card"><div class="solution-title">Agentic orchestration for end-to-end workflows</div><div>n8n / AgentCore systems that coordinate multiple tools, humans, and AI models across sites.</div><div class="solution-tags">n8n + Bedrock AgentCore · Tier 3</div></div>
+          <div class="solution-card"><div class="solution-title">Enterprise AI observability &amp; guardrails</div><div>Monitoring, logging, and policy enforcement for AI systems running in production across NAPS.</div><div class="solution-tags">Entra Agent ID + Observability stack · Tier 3</div></div>
         </div>
       </div>
     </div>
-
-    <div class="dp-card reveal">
-      <div class="dp-card-title"><span class="icon">💡</span> Solutions You Can Build (Tier 2–3)</div>
-      <div class="solutions-list">
-        <div class="solution-item">
-          <div class="solution-icon">🌱</div>
-          <div class="solution-body">
-            <div class="solution-name">Predictive seed yield &amp; quality ML model</div>
-            <div class="solution-desc">ML model trained on historical yield data, weather, and field inputs — predicting output quality and flagging risk batches before harvest.</div>
-            <span class="solution-tier" style="background:rgba(168,85,247,0.1);color:var(--pd)">Databricks + Vertex AI · Tier 3</span>
-          </div>
+    <div class="side-panel">
+      <div class="side-card">
+        <div class="panel-header">🛠 Tools &amp; platforms</div>
+        <div class="tools-grid">
+          <div class="tool-btn"><span>☁️</span>Azure AI Foundry</div>
+          <div class="tool-btn"><span>🔺</span>Google Vertex AI</div>
+          <div class="tool-btn"><span>🧱</span>Databricks</div>
+          <div class="tool-btn"><span>🕹️</span>n8n</div>
+          <div class="tool-btn"><span>🧠</span>Bedrock AgentCore</div>
+          <div class="tool-btn"><span>🧬</span>MS Entra Agent ID</div>
+          <div class="tool-btn"><span>🐍</span>Python / SQL</div>
+          <div class="tool-btn"><span>📡</span>SAP API / REST</div>
+          <div class="tool-btn"><span>❄️</span>Snowflake</div>
         </div>
-        <div class="solution-item">
-          <div class="solution-icon">🏭</div>
-          <div class="solution-body">
-            <div class="solution-name">Digital twin for seed manufacturing site</div>
-            <div class="solution-desc">Real-time digital replica of a production site — sensor data ingestion, anomaly detection, and simulation for operational optimization.</div>
-            <span class="solution-tier" style="background:rgba(168,85,247,0.1);color:var(--pd)">Azure AI + Databricks · Tier 3</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">🤖</div>
-          <div class="solution-body">
-            <div class="solution-name">Multi-agent supply chain orchestration</div>
-            <div class="solution-desc">Autonomous AI agents monitoring inventory, triggering reorders, negotiating delivery windows, and alerting planners — built with n8n + Bedrock.</div>
-            <span class="solution-tier" style="background:rgba(168,85,247,0.1);color:var(--pd)">n8n + Bedrock AgentCore · Tier 3</span>
-          </div>
-        </div>
-        <div class="solution-item">
-          <div class="solution-icon">🔍</div>
-          <div class="solution-body">
-            <div class="solution-name">RAG-powered knowledge base for NAPS</div>
-            <div class="solution-desc">LLM with Retrieval-Augmented Generation over all NAPS SOPs, technical docs, and regulatory filings — deployed via Azure AI Foundry + Entra Agent ID.</div>
-            <span class="solution-tier" style="background:rgba(168,85,247,0.1);color:var(--pd)">Azure AI Foundry + Entra · Tier 2–3</span>
-          </div>
+      </div>
+      <div class="side-card">
+        <div class="panel-header">✅ Skills you'll have</div>
+        <div class="skills-list">
+          <div class="skill-item"><div class="skill-check">✓</div>Deploy and fine-tune LLMs on Azure AI Foundry.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Build multi-agent orchestration systems with n8n.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Train and deploy predictive ML models at scale.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Architect secure, observable AI systems for production.</div>
+          <div class="skill-item"><div class="skill-check">✓</div>Lead Tier 3 strategic initiatives end-to-end with CoE.</div>
         </div>
       </div>
     </div>
   </div>
+</section>
 
-</div><!-- /level-detail-section -->
+</main>
 
-<!-- GOVERNANCE NOTE -->
-<div class="gov-note reveal">
-  <div class="gov-note-inner">
-    <div class="gov-note-icon">🛡️</div>
-    <div class="gov-note-text">
-      <h4>Federated Governance — Applies at Every Level</h4>
-      <p>All AI tools and solutions built within this program operate under Bayer's federated governance model via <strong>Microsoft Entra Agent ID</strong> — ensuring discoverability across platforms, enforcing security and compliance guardrails, and providing full observability of AI agents and automations. Solutions at L3–L4 require formal CoE review and IRB approval before production deployment.</p>
+<footer>Pathfinders · North American Product Supply · Bayer · Digital Literacy Trail · April 2026</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeBg(event)">
+  <div class="modal-box" id="modalBox" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="mh-row1">
+        <span class="modal-badge" id="mBadge"></span>
+        <button class="modal-close" onclick="closeModal()" aria-label="Close">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 1l11 11M12 1L1 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-chips" id="mChips"></div>
     </div>
+    <div class="modal-body" id="mBody"></div>
   </div>
 </div>
-
-<footer>
-  <strong>Pathfinders — Digital Literacy Trail</strong> · IGNITE Phase · NAPS Innovation Program<br>
-  <span>Bayer North American Product Supply</span> · Accelerating Responsible AI Adoption
-</footer>
 
 <script>
-function selectLevel(level) {
-  // Update tabs
-  ['eu','cd','pu','pd'].forEach(l => {
-    document.getElementById('tab-' + l).classList.toggle('active', l === level);
-    const funnel = document.getElementById('funnel-' + l);
-    if (funnel) {
-      funnel.classList.remove('active','inactive');
-      funnel.classList.add(l === level ? 'active' : 'inactive');
-    }
-  });
-  // Update panels
-  document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + level).classList.add('active');
-  // Trigger reveals in new panel
-  document.getElementById('panel-' + level).querySelectorAll('.reveal').forEach(el => {
-    el.classList.add('visible');
-  });
-  // Scroll to detail
-  document.querySelector('.level-detail-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+const ROLE_MAP = {everyday:'lv1',citizen:'lv2',power:'lv3',product:'lv4'};
+
+function toggleLevel(id,bar){
+  const body=document.getElementById(id);
+  if(!body)return;
+  const hidden=body.classList.contains('hidden');
+  body.classList.toggle('hidden',!hidden);
+  bar.classList.toggle('open',hidden);
 }
 
-// Scroll reveal
-const ro = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }});
-}, { threshold: 0.06 });
-document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+function focusRole(role){
+  document.querySelectorAll('.p-layer').forEach(el=>el.classList.toggle('active',el.dataset.role===role));
+  document.querySelectorAll('.role-card').forEach(el=>el.classList.toggle('active',el.dataset.role===role));
+  const lvId=ROLE_MAP[role];if(!lvId)return;
+  const block=document.querySelector('.level-block[data-role="'+role+'"]');if(!block)return;
+  const bar=block.querySelector('.level-bar');
+  const body=document.getElementById(lvId);
+  if(body&&body.classList.contains('hidden'))toggleLevel(lvId,bar);
+  block.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
-// Init funnel state
-['eu','cd','pu','pd'].forEach(l => {
-  const f = document.getElementById('funnel-' + l);
-  if (f) f.classList.add(l === 'eu' ? 'active' : 'inactive');
-});
+const MD={
+  m1:{lv:1,badge:'Level 1 · Everyday Users',title:'What is AI? — Demystifying the Basics',dur:'45 min',fmt:'e-Learning (self-paced)',prereq:['None'],obj:'Give every NAPS employee a clear, non-technical understanding of AI, ML, automation, and GenAI using concrete Bayer examples.',topics:['The AI landscape: AI vs ML vs Automation vs GenAI — where each fits.','How large language models (LLMs) work in plain language (no math required).','Real Bayer use cases: seed yield prediction, manufacturing QC, document summarization.','The NAPS AI opportunity map: where AI adds value in seed manufacturing, product support, site support.','Live tool showcase: first look at myGenAssist and MS Copilot.'],outcomes:['Explain the difference between AI, ML, and automation to a colleague.','Identify three or more AI use cases relevant to their area of work.','Understand where Bayer sits on the AI adoption journey.'],tools:['myGenAssist','MS Copilot (M365)'],trainer:{role:'AI Champion / Site Lead',icon:'🧑‍🏫',desc:'Comfortable explaining technical topics in plain language and connecting AI concepts to local NAPS use cases.'},assess:'Short knowledge check quiz plus reflection question submitted via Forms or LMS.'},
+  m2:{lv:1,badge:'Level 1 · Everyday Users',title:'Prompting That Works',dur:'60 min',fmt:'Interactive virtual session',prereq:['m1 · What is AI?'],obj:'Teach employees how to write effective prompts that reliably produce useful outputs for real NAPS tasks.',topics:['Prompt structure: role, context, constraints, examples, and tone.','Common failure modes: vague prompts, missing constraints, and hidden assumptions.','Iterating with AI: how to refine, critique, and improve responses.','Hands-on exercises using myGenAssist and Copilot with NAPS scenarios.'],outcomes:['Write structured prompts using the role–context–task pattern.','Improve a weak prompt into a strong one in three iterations or less.','Apply prompting patterns to emails, summaries, and simple analyses.'],tools:['myGenAssist','MS Copilot (M365)'],trainer:{role:'Facilitator with AI experience',icon:'🗣️',desc:'Comfortable running interactive sessions and coaching participants through live AI exercises.'},assess:'Live practice plus a short take-home exercise using AI on a real work artifact.'},
+  m3:{lv:1,badge:'Level 1 · Everyday Users',title:'Responsible AI at Bayer',dur:'30 min',fmt:'Mandatory compliance module',prereq:['m1 · What is AI?'],obj:"Make sure every employee understands what data can and cannot be shared with AI tools and how Bayer governs AI.",topics:["Overview of Bayer's AI policy and global principles.",'Data privacy, confidentiality, and IP when using AI tools.','Real examples of "safe" vs "unsafe" prompts.','Escalation paths when something looks risky.'],outcomes:['Recognize sensitive data that must never be pasted into AI tools.',"Apply Bayer's AI usage guidelines in common scenarios.",'Know where to go with questions about AI risk and compliance.'],tools:['LMS module','myGenAssist (policy Q&A)'],trainer:{role:'Compliance / Legal + AI sponsor',icon:'🛡️',desc:'Represents the local compliance view and can answer questions about what is in-bounds for AI use.'},assess:'Mandatory quiz with scenario-based questions and acknowledgement of the AI usage policy.'},
+  m4:{lv:1,badge:'Level 1 · Everyday Users',title:'Using myGenAssist & MS Copilot Daily',dur:'90 min',fmt:'Hands-on lab',prereq:['m1 · What is AI?','m2 · Prompting That Works'],obj:'Give employees confidence using AI tools on their own work so they leave with at least one habit they can use tomorrow.',topics:['Navigating myGenAssist and key templates for NAPS tasks.','Using Copilot in Word, Outlook, and Excel for day-to-day workflows.','Hands-on exercises with participant-provided documents and emails.','Setting up personal guardrails and peer support channels.'],outcomes:['Complete at least three real tasks faster using AI support.','Save a personal library of prompts and patterns.','Know where to get help when something does not work as expected.'],tools:['myGenAssist','MS Copilot in Word','MS Copilot in Outlook','MS Copilot in Excel'],trainer:{role:'Local super user / Digital Coach',icon:'🧑‍💻',desc:'Hands-on facilitator who can troubleshoot tools live and keep the session practical.'},assess:'Completion of a guided lab workbook plus short reflection on new daily AI habits.'},
+  c1:{lv:2,badge:'Level 2 · Citizen Developers',title:'Power Automate Fundamentals',dur:'3h',fmt:'Hands-on lab',prereq:['Level 1 complete'],obj:'Enable Citizen Developers to automate simple repetitive workflows safely using Power Automate.',topics:['Flows, triggers, actions, and conditions.','Approval workflows for common NAPS processes.','Error handling and notifications.','Best practices for naming, environments, and ownership.'],outcomes:['Build at least one working approval or notification flow.','Confidently modify and monitor existing flows.','Know when a flow is too complex and should be escalated.'],tools:['Power Automate','SharePoint','Outlook'],trainer:{role:'Automation lead / CoE member',icon:'⚙️',desc:'Experienced in designing and supporting Power Automate flows for operations.'},assess:'Demo of a working flow plus simple documentation of trigger, steps, and owner.'},
+  c2:{lv:2,badge:'Level 2 · Citizen Developers',title:'SharePoint & Power Apps Basics',dur:'3h',fmt:'Hands-on lab',prereq:['c1 · Power Automate Fundamentals'],obj:'Teach Citizen Developers how to replace basic spreadsheets with structured SharePoint lists and simple apps.',topics:['Designing SharePoint lists for approvals and tracking.','Creating simple canvas apps in Power Apps.','Permissions, sharing, and basic governance.','Connecting apps and flows for end-to-end processes.'],outcomes:['Create a working list + app combo for a simple process.','Understand how data flows between SharePoint, Power Apps, and Power Automate.','Document where data is stored and who owns it.'],tools:['SharePoint','Power Apps','Power Automate'],trainer:{role:'Power Platform specialist',icon:'🧱',desc:'Experienced in building lightweight apps and enforcing healthy patterns for data and security.'},assess:'App walkthrough plus peer feedback on usability and structure.'},
+  c3:{lv:2,badge:'Level 2 · Citizen Developers',title:'AI Builder in Power Platform',dur:'2h',fmt:'Demo + practice',prereq:['c1 · Power Automate Fundamentals'],obj:'Show Citizen Developers how to embed pre-built AI models into flows and apps.',topics:['Overview of available AI Builder models.','Document processing and form recognition examples.','Prediction models using historical NAPS data.','Responsible use and limits of out-of-the-box models.'],outcomes:['Configure at least one AI Builder model in a demo flow or app.','Explain to a stakeholder what the model does and does not do.','Identify when a custom model or data science support is needed.'],tools:['AI Builder','Power Apps','Power Automate'],trainer:{role:'Data / AI specialist in Power Platform',icon:'🧠',desc:'Understands how to balance ease-of-use with responsible AI practices.'},assess:'Short demo of an AI Builder-enabled scenario and discussion of risks/benefits.'},
+  c4:{lv:2,badge:'Level 2 · Citizen Developers',title:'Copilot Studio — Build Your First Bot',dur:'3h',fmt:'Project-based workshop',prereq:['Level 1 complete'],obj:'Equip Citizen Developers to build simple FAQ or workflow bots embedded in Teams.',topics:['Bot topics, triggers, and conversational design basics.','Connecting bots to data sources and flows.','Testing, publishing, and monitoring usage.','Handover to CoE for more advanced needs.'],outcomes:['Publish a basic bot to a pilot team or channel.','Capture questions and improvements from early users.','Know when to involve CoE for scaling or integrations.'],tools:['MS Copilot Studio','Teams','Power Automate'],trainer:{role:'Conversational AI / automation specialist',icon:'💬',desc:'Comfortable balancing UX and technical guardrails for bots.'},assess:'Review of live bot plus backlog of improvements and risks.'},
+  c5:{lv:2,badge:'Level 2 · Citizen Developers',title:'Governance & Handoff to CoE',dur:'1h',fmt:'Online module',prereq:['At least one solution built or in progress'],obj:'Clarify when and how Citizen Developer solutions should transition to Power Users or CoE ownership.',topics:['Risk-based view of Citizen Dev vs CoE vs IT-owned.','Documentation expectations: diagrams, runbooks, and access lists.','Naming conventions, environments, and lifecycle.','Examples of good and bad handoffs.'],outcomes:['Decide which solutions can stay Citizen Dev and which must be escalated.','Prepare a complete handoff package for CoE.','Reduce risk of orphaned or fragile automations.'],tools:['Pathfinders templates','SharePoint spaces'],trainer:{role:'CoE representative',icon:'📎',desc:'Ensures alignment with enterprise standards and long-term ownership.'},assess:'Checklist-based review of one real or simulated handoff package.'},
+  p1:{lv:3,badge:'Level 3 · Power Users',title:'Advanced Power Automate — RPA & Cloud Flows',dur:'5h',fmt:'Project-based lab',prereq:['L2 Citizen Developer modules'],obj:'Teach Power Users to combine cloud flows and RPA for robust automation in complex NAPS processes.',topics:['Attended vs unattended RPA in practice.','Error handling, retries, and monitoring.','Security, credentials, and segregation of duties.','Patterns for combining cloud flows, desktop flows, and APIs.'],outcomes:['Design and build a multi-step RPA-enabled process.','Document operational runbooks for support teams.','Estimate value and risks of RPA candidates.'],tools:['Power Automate RPA','Desktop flows','On-prem connectors'],trainer:{role:'RPA architect',icon:'🤖',desc:'Experienced in running production RPA at scale with appropriate governance.'},assess:'End-to-end demo of an RPA solution plus stability checklist.'},
+  p2:{lv:3,badge:'Level 3 · Power Users',title:'Power BI — From Data to Decisions',dur:'8h',fmt:'Hands-on + project',prereq:['Comfort with Excel and basic data concepts'],obj:'Enable Power Users to design meaningful, trusted dashboards that drive decisions.',topics:['Data modeling and star schemas.','DAX fundamentals and common patterns.','Dashboard layout and data storytelling.','Connecting SAP, SQL, and SharePoint data sources.'],outcomes:['Build a production-quality dashboard for a NAPS use case.','Explain key measures and data lineage to stakeholders.','Set up refresh, permissions, and simple usage metrics.'],tools:['Power BI','Dataverse / SQL'],trainer:{role:'BI lead / data modeler',icon:'📈',desc:'Experienced in both technical modeling and business storytelling.'},assess:'Review of a working dashboard with a small target user group.'},
+  p3:{lv:3,badge:'Level 3 · Power Users',title:'Copilot Studio — Advanced Agents',dur:'4h',fmt:'Hands-on',prereq:['Citizen Developer bot built'],obj:'Teach Power Users to build multi-turn, integrated agents that orchestrate complex workflows.',topics:['Designing conversation flows with context and memory.','Connecting to APIs, data sources, and Power Automate.','Authentication and security patterns.','Monitoring, logging, and continuous improvement.'],outcomes:['Deploy an advanced bot into a controlled production environment.','Measure bot usage and hand-off improvements to CoE.','Integrate bots with Power Apps and existing systems.'],tools:['MS Copilot Studio','Power Automate','Azure services'],trainer:{role:'Conversational AI engineer',icon:'🧠',desc:'Comfortable building and reviewing complex agents with strong safety controls.'},assess:'Technical review of bot configuration plus performance dashboard.'},
+  p4:{lv:3,badge:'Level 3 · Power Users',title:'Gemini Enterprise & Perplexity for Business',dur:'3h',fmt:'Workshop',prereq:['Level 2 data literacy'],obj:'Show how advanced research tools support analysis, synthesis, and design of AI-enabled processes.',topics:['Advanced search, synthesis, and citation workflows.','Using enterprise AI tools to explore internal documentation.','Combining research with Power Platform prototyping.','Guardrails for using external AI safely with Bayer content.'],outcomes:['Use enterprise research tools to support AI solution design.','Document insights with traceable citations.','Feed research outcomes into business cases and solution backlogs.'],tools:['Gemini Enterprise','Perplexity','myGenAssist'],trainer:{role:'AI research specialist',icon:'🔍',desc:'Expert in using advanced AI tools for research while maintaining compliance.'},assess:'Short research sprint with documented findings and follow-up actions.'},
+  p5:{lv:3,badge:'Level 3 · Power Users',title:'AI Solution Design & Business Case',dur:'3h',fmt:'Workshop',prereq:['At least one candidate solution identified'],obj:'Equip Power Users to scope and justify Tier 1–2 AI projects with CoE support.',topics:['Scoping and assumptions for AI-enabled solutions.','Estimating value, effort, and risk.','Writing concise business cases for governance forums.','Aligning with Pathfinders phases and KPIs.'],outcomes:['Draft a one-page business case for an AI solution.','Present trade-offs between options to decision makers.','Prepare a solution for IRB or Steering Committee review.'],tools:['Pathfinders business case template','PowerPoint / Word'],trainer:{role:'Product manager / finance partner',icon:'📊',desc:'Comfortable balancing technical ambition with ROI and risk.'},assess:'Reviewed business case with feedback from CoE or leadership.'},
+  d1:{lv:4,badge:'Level 4 · Product Developers',title:'Python for AI & Data Engineering',dur:'12h',fmt:'Self-paced + mentoring',prereq:['L3 Power Users','Programming experience'],obj:'Build solid foundations in Python and data engineering required to ship production AI systems.',topics:['Python essentials for data work.','Using Pandas and NumPy for large datasets.','Calling REST APIs and working with JSON.','Building resilient data pipelines and scheduling jobs.','SQL fundamentals for analytics and ML.'],outcomes:['Write clean, reusable Python for data and AI tasks.','Ingest and transform data from multiple enterprise sources.','Collaborate effectively with data engineers and ML teams.'],tools:['Python','Pandas / NumPy','SQL'],trainer:{role:'Data engineer / ML engineer',icon:'🐍',desc:'Experienced in building production-grade data pipelines and tooling.'},assess:'Capstone script or notebook that ingests, cleans, and exposes data for an AI use case.'},
+  d2:{lv:4,badge:'Level 4 · Product Developers',title:'Azure AI Foundry & LLM Integration',dur:'16h',fmt:'Lab + certification path',prereq:['d1 · Python for AI & Data Engineering'],obj:'Teach Product Developers how to deploy, integrate, and monitor LLMs on Azure with strong guardrails.',topics:['Provisioning and securing Azure AI resources.','Prompt engineering at scale and evaluation.','RAG patterns with vector stores and enterprise data.','Responsible AI toolkit and safety filters.','Monitoring latency, quality, and usage.'],outcomes:['Deploy LLM endpoints in Azure AI Foundry.','Design RAG-based applications using internal NAPS data.','Apply Responsible AI controls to production workloads.'],tools:['Azure AI Foundry','Azure OpenAI','Vector DB'],trainer:{role:'Cloud AI architect',icon:'☁️',desc:'Deep experience deploying regulated AI workloads on Azure.'},assess:'End-to-end deployment of a secure LLM-powered service with documentation.'},
+  d3:{lv:4,badge:'Level 4 · Product Developers',title:'Agentic AI with n8n & Bedrock AgentCore',dur:'10h',fmt:'Workshop + project',prereq:['d1 · Python for AI & Data Engineering'],obj:'Enable Product Developers to design and implement multi-agent systems that orchestrate complex workflows.',topics:['Agent patterns and orchestration concepts.','Tool calling and function execution across systems.','Memory, context, and long-running workflows.','Designing human-in-the-loop checkpoints.','Resilience and failure handling in agentic systems.'],outcomes:['Design agentic architectures for real NAPS processes.','Implement multi-agent flows that coordinate tools, humans, and models.','Instrument agents for observability and continuous improvement.'],tools:['n8n','AWS Bedrock AgentCore','Azure services'],trainer:{role:'Agentic systems engineer',icon:'🕹️',desc:'Specialist in multi-agent orchestration and workflow design.'},assess:'Project review of an agentic workflow that runs against a realistic scenario.'},
+  d4:{lv:4,badge:'Level 4 · Product Developers',title:'Google Vertex AI & Databricks for ML',dur:'14h',fmt:'Certification path',prereq:['Data engineering foundations'],obj:'Provide cross-platform skills for training, tuning, and deploying ML models at scale.',topics:['Feature engineering pipelines in Databricks.','Model training and experiment tracking.','Serving models via Vertex AI endpoints.','MLOps practices for monitoring and retraining.','Cost management and optimization.'],outcomes:['Train and deploy ML models using Databricks and Vertex AI.','Instrument models for drift and performance.','Collaborate with central data science teams using shared tooling.'],tools:['Databricks','Google Vertex AI','MLflow'],trainer:{role:'ML engineer / data scientist',icon:'📉',desc:'Experienced in building and operating ML systems in production.'},assess:'Completion of a platform certification or equivalent internal project.'},
+  d5:{lv:4,badge:'Level 4 · Product Developers',title:'Enterprise Architecture & Microsoft Entra Agent ID',dur:'5h',fmt:'Workshop',prereq:['Architect or senior engineer track'],obj:"Ensure Product Developers can integrate AI systems safely into Bayer's enterprise architecture.",topics:['Identity and access management for AI agents.','Zero trust principles applied to AI workloads.','Observability, logging, and audit requirements.','Patterns for integrating with SAP, REST APIs, and Snowflake.','Producing architecture decision records (ADRs).'],outcomes:["Design AI solutions that comply with enterprise security standards.",'Document architecture and integration patterns clearly.','Work with central architecture teams on Tier 3 initiatives.'],tools:['MS Entra Agent ID','SAP APIs','Snowflake','Observability stack'],trainer:{role:'Enterprise architect',icon:'🏛️',desc:'Connects AI solution designs with Bayer-wide architecture and security standards.'},assess:'Architecture review of a proposed Tier 3 solution against enterprise standards.'}
+};
+
+function openModal(id){
+  const m=MD[id];if(!m)return;
+  const box=document.getElementById('modalBox');
+  box.className='modal-box modal-lv'+m.lv;
+  document.getElementById('mBadge').textContent=m.badge;
+  document.getElementById('mTitle').textContent=m.title;
+  const tp=m.tools&&m.tools.length?m.tools.slice(0,2).join(', ')+(m.tools.length>2?' +'+(m.tools.length-2):''):'';
+  document.getElementById('mChips').innerHTML=
+    '<span class="modal-chip">⏱ '+m.dur+'</span>'+
+    '<span class="modal-chip">📋 '+m.fmt+'</span>'+
+    (tp?'<span class="modal-chip">🛠 '+tp+'</span>':'');
+  const ph=(m.prereq||[]).map(p=>'<span class="pchip">'+p+'</span>').join('');
+  const th=(m.topics||[]).map(t=>'<li>'+t+'</li>').join('');
+  const oh=(m.outcomes||[]).map(o=>'<div class="outcome"><div class="oc-check">✓</div><span>'+o+'</span></div>').join('');
+  const toolh=(m.tools||[]).map(t=>'<span class="tchip">'+t+'</span>').join('');
+  const tr=m.trainer||{role:'Trainer',icon:'👤',desc:''};
+  document.getElementById('mBody').innerHTML=
+    '<div class="ms"><div class="ms-title">Prerequisites</div><div class="prereq-chips">'+(ph||'<span class="pchip">None</span>')+'</div></div>'+
+    '<div class="ms"><div class="ms-title">Objective</div><div class="m-obj">'+m.obj+'</div></div>'+
+    '<div class="ms"><div class="ms-title">Topics covered ('+( m.topics||[]).length+')</div><ul class="m-topics">'+th+'</ul></div>'+
+    '<div class="ms"><div class="ms-title">Learning outcomes</div><div class="m-outcomes">'+oh+'</div></div>'+
+    (toolh?'<div class="ms"><div class="ms-title">Tools &amp; platforms</div><div class="tools-row">'+toolh+'</div></div>':'')+
+    '<div class="ms"><div class="ms-title">Trainer profile</div><div class="trainer-card"><div class="t-icon">'+(tr.icon||'👤')+'</div><div><div class="t-role">'+tr.role+'</div><div class="t-desc">'+(tr.desc||'')+'</div></div></div></div>'+
+    '<div class="ms"><div class="ms-title">Assessment</div><div class="assess-box"><span>📝</span><span>'+m.assess+'</span></div></div>';
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+function closeBg(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 </script>
 </body>
 </html>
