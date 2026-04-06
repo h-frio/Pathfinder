@@ -353,6 +353,9 @@ footer span { color: var(--green); }
   .nav-links { display: none; }
   .hero-stats { gap: 24px; }
 }
+.pdp-card-link { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+.pdp-card-link:hover { border-color: rgba(0,166,81,0.5) !important; background: rgba(0,166,81,0.07) !important; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,166,81,0.15); }
+.pdp-link-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; background: rgba(0,166,81,0.15); color: #00A651; border: 1px solid rgba(0,166,81,0.3); margin-left: 8px; letter-spacing: 0.04em; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -521,7 +524,7 @@ footer span { color: var(--green); }
       </div>
       <div class="pdp-cards">
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📣</span> Innovation Campaigns</div><div class="pdp-card-text">Quarterly themed campaigns with internal case studies, hackathons, and innovation showcases to build awareness and excitement.</div></div>
-        <div class="pdp-card"><div class="pdp-card-title"><span class="icon">🎓</span> Digital Literacy Training</div><div class="pdp-card-text">Modular learning paths covering AI, RPA, LLMs, ML, and analytics — tailored by role and business unit.</div></div>
+        <a href="digital-literacy-trail.html" target="_blank" class="pdp-card pdp-card-link"><div class="pdp-card-title"><span class="icon">🎓</span> Digital Literacy Training <span class="pdp-link-badge">Explore →</span></div><div class="pdp-card-text">Modular learning paths covering AI, RPA, LLMs, ML, and analytics — tailored by role and business unit.</div></a>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">👥</span> Innovation Champion Network</div><div class="pdp-card-text">Dedicated ambassadors per business unit trained to coach peers, identify opportunities, and assist with submissions.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📚</span> Use Case Library</div><div class="pdp-card-text">Searchable repository of implemented solutions across Bayer, with ROI data, tech stack, and lessons learned.</div></div>
       </div>
