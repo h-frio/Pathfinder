@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Intake Form — Pathfinders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #003366; --navy-mid: #004b99;
+  --green: #00A651; --green-light: #00C060;
+  --bg: #0d1117; --bg2: #161b22; --bg3: #1c2330; --bg4: #232c3d;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+  --text: #e6edf3; --text-muted: #8b949e; --text-faint: #484f58;
+  --error: #f87171; --error-bg: rgba(248,113,113,0.08);
+  --font: 'Inter', -apple-system, sans-serif; --r: 8px; --r2: 12px;
+  --ease: 200ms cubic-bezier(0.16,1,0.3,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+/* LAYOUT */
+.form-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.form-header {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 16px 28px; display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+}
+.fh-icon {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: rgba(0,166,81,0.12); border: 1px solid rgba(0,166,81,0.25);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink:0;
+}
+.fh-title { font-size: 0.95rem; font-weight: 700; }
+.fh-sub { font-size: 0.74rem; color: var(--text-muted); }
+
+/* PROGRESS */
+.progress-bar-wrap { padding: 0 28px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+.step-indicators { display: flex; gap: 0; }
+.step-ind {
+  flex: 1; padding: 12px 10px 10px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  position: relative; border-bottom: 2px solid transparent;
+  transition: border-color var(--ease); opacity: 0.45;
+}
+.step-ind.done, .step-ind.active { opacity: 1; }
+.step-ind.active { border-bottom-color: var(--green); }
+.step-ind.done { border-bottom-color: rgba(0,166,81,0.4); }
+.step-dot {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--bg4); border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700; color: var(--text-muted);
+  transition: all var(--ease);
+}
+.step-ind.active .step-dot { background: var(--green); border-color: var(--green); color: white; }
+.step-ind.done .step-dot { background: rgba(0,166,81,0.2); border-color: rgba(0,166,81,0.5); color: var(--green); }
+.step-lbl { font-size: 0.65rem; font-weight: 500; color: var(--text-muted); text-align: center; }
+.step-ind.active .step-lbl { color: var(--text); }
+
+/* FORM AREA */
+.form-area { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.step-page { display: none; animation: fadeIn 0.2s ease; }
+.step-page.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+.step-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.step-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; }
+
+/* FIELDS */
+.field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field-group.cols1 { grid-template-columns: 1fr; }
+.field-group.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
+.field label .req { color: var(--green); margin-left: 2px; }
+.field input, .field select, .field textarea {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); color: var(--text); font: inherit; font-size: 0.84rem;
+  padding: 9px 12px; outline: none; width: 100%;
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,166,81,0.12);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text-faint); }
+.field textarea { resize: vertical; min-height: 88px; }
+.field select option { background: var(--bg3); }
+.field.has-error input, .field.has-error select, .field.has-error textarea { border-color: var(--error); }
+.field-error { font-size: 0.7rem; color: var(--error); display: none; margin-top: 2px; }
+.field.has-error .field-error { display: block; }
+.field-hint { font-size: 0.7rem; color: var(--text-faint); }
+
+/* BENEFIT CHECKBOXES */
+.benefit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.benefit-item { position: relative; }
+.benefit-item input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.benefit-item label {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r);
+  padding: 9px 12px; cursor: pointer; font-size: 0.78rem; font-weight: 500;
+  transition: all var(--ease); user-select: none;
+}
+.benefit-item label .bicon { font-size: 1rem; }
+.benefit-item input:checked + label { border-color: var(--green); background: rgba(0,166,81,0.1); color: var(--text); }
+.benefit-item label:hover { border-color: rgba(0,166,81,0.4); }
+
+/* TIER SELECTOR */
+.tier-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.tier-option input[type="radio"] { display: none; }
+.tier-option label {
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--bg3); border: 1.5px solid var(--border2); border-radius: var(--r2);
+  padding: 12px 14px; cursor: pointer; transition: all var(--ease);
+}
+.tier-option input:checked + label { border-color: var(--green); background: rgba(0,166,81,0.08); }
+.tier-option label:hover { border-color: rgba(0,166,81,0.4); }
+.tier-opt-name { font-size: 0.8rem; font-weight: 700; }
+.tier-opt-hint { font-size: 0.7rem; color: var(--text-muted); }
+
+/* REVIEW PANEL */
+.review-section { margin-bottom: 18px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; }
+.review-section-header { padding: 10px 16px; background: var(--bg3); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.review-rows { padding: 4px 0; }
+.review-row { display: flex; gap: 12px; padding: 7px 16px; border-bottom: 1px solid var(--border); }
+.review-row:last-child { border-bottom: none; }
+.rr-key { font-size: 0.72rem; color: var(--text-faint); width: 120px; flex-shrink: 0; padding-top: 1px; }
+.rr-val { font-size: 0.8rem; color: var(--text); }
+.rr-val.empty { color: var(--text-faint); font-style: italic; }
+
+/* CONFIRM BOX */
+.confirm-box {
+  background: rgba(0,166,81,0.07); border: 1px solid rgba(0,166,81,0.2);
+  border-radius: var(--r2); padding: 14px 18px; margin-bottom: 18px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.confirm-box input[type="checkbox"] { margin-top: 2px; accent-color: var(--green); flex-shrink: 0; }
+.confirm-box label { font-size: 0.8rem; color: var(--text-muted); cursor: pointer; }
+
+/* SUCCESS SCREEN */
+.success-screen { display: none; text-align: center; padding: 32px 24px; }
+.success-screen.active { display: block; }
+.success-icon { font-size: 3rem; margin-bottom: 16px; animation: pop 0.4s cubic-bezier(0.16,1,0.3,1); }
+@keyframes pop { from{transform:scale(0)} to{transform:scale(1)} }
+.success-id {
+  display: inline-block; background: rgba(0,166,81,0.1); border: 1px solid rgba(0,166,81,0.25);
+  color: var(--green); border-radius: 8px; padding: 8px 20px; font-size: 1.1rem; font-weight: 700;
+  font-family: monospace; letter-spacing: 0.05em; margin: 12px 0;
+}
+.success-msg { font-size: 0.85rem; color: var(--text-muted); max-width: 420px; margin: 0 auto 20px; }
+.success-steps { display: flex; flex-direction: column; gap: 8px; text-align: left; max-width: 320px; margin: 0 auto 24px; }
+.ss-item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.8rem; }
+.ss-num { width: 20px; height: 20px; border-radius: 50%; background: var(--navy-mid); color: white; font-size: 0.62rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ss-text { color: var(--text-muted); }
+
+/* FOOTER ACTIONS */
+.form-footer {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+}
+.ff-step-info { font-size: 0.75rem; color: var(--text-muted); }
+.ff-btns { display: flex; gap: 8px; }
+.btn {
+  padding: 9px 18px; border-radius: 7px; font: inherit; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; border: none; transition: all var(--ease);
+}
+.btn-ghost { background: none; border: 1px solid var(--border2); color: var(--text-muted); }
+.btn-ghost:hover { background: var(--bg3); color: var(--text); }
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:hover { background: var(--green-light); }
+.btn-primary:disabled { background: var(--bg4); color: var(--text-faint); cursor: not-allowed; }
+.btn-new { background: var(--navy-mid); color: white; }
+.btn-new:hover { background: #005fc7; }
+</style>
+</head>
+<body>
+<div class="form-shell">
+
+  <!-- Header -->
+  <div class="form-header">
+    <div class="fh-icon">📋</div>
+    <div>
+      <div class="fh-title">Smart Intake Form</div>
+      <div class="fh-sub">Pathfinders — NAPS Innovation Program</div>
+    </div>
+  </div>
+
+  <!-- Progress steps -->
+  <div class="progress-bar-wrap">
+    <div class="step-indicators">
+      <div class="step-ind active" id="si-1" onclick="goToStep(1)">
+        <div class="step-dot">1</div>
+        <div class="step-lbl">Requester</div>
+      </div>
+      <div class="step-ind" id="si-2" onclick="goToStep(2)">
+        <div class="step-dot">2</div>
+        <div class="step-lbl">Initiative</div>
+      </div>
+      <div class="step-ind" id="si-3" onclick="goToStep(3)">
+        <div class="step-dot">3</div>
+        <div class="step-lbl">Impact</div>
+      </div>
+      <div class="step-ind" id="si-4" onclick="goToStep(4)">
+        <div class="step-dot">4</div>
+        <div class="step-lbl">Review</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form area -->
+  <div class="form-area" id="form-area">
+
+    <!-- STEP 1: Requester -->
+    <div class="step-page active" id="step-1">
+      <div class="step-title">Requester Information</div>
+      <div class="step-subtitle">Tell us who you are and how to reach you about your idea.</div>
+
+      <div class="field-group">
+        <div class="field" id="f-submitter-name">
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="submitter-name" placeholder="Jane Smith">
+          <span class="field-error">Please enter your name.</span>
+        </div>
+        <div class="field" id="f-submitter-email">
+          <label>Bayer Email <span class="req">*</span></label>
+          <input type="email" id="submitter-email" placeholder="jane.smith@bayer.com">
+          <span class="field-error">Please enter a valid Bayer email.</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field" id="f-bu">
+          <label>Business Unit <span class="req">*</span></label>
+          <select id="bu">
+            <option value="">Select BU…</option>
+            <option>Seed Manufacturing</option>
+            <option>Site Support</option>
+            <option>Product Support</option>
+            <option>Supply Chain &amp; Logistics</option>
+            <option>Quality &amp; Compliance</option>
+            <option>Engineering &amp; Maintenance</option>
+            <option>Finance &amp; Operations</option>
+            <option>IT / Digital</option>
+            <option>Other</option>
+          </select>
+          <span class="field-error">Please select a business unit.</span>
+        </div>
+        <div class="field" id="f-site">
+          <label>NAPS Site <span class="req">*</span></label>
+          <select id="site">
+            <option value="">Select site…</option>
+            <option>Lubbock, TX</option>
+            <option>Huxley, IA</option>
+            <option>Woodland, CA</option>
+            <option>Nampa, ID</option>
+            <option>Pasco, WA</option>
+            <option>Pittsburg, KS</option>
+            <option>Breckenridge, TX</option>
+            <option>Weslaco, TX</option>
+            <option>Other / Multi-site</option>
+          </select>
+          <span class="field-error">Please select your site.</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field" id="f-process-owner">
+          <label>Process Owner <span class="req">*</span></label>
+          <input type="text" id="process-owner" placeholder="Name of process/area owner">
+          <span class="field-error">Required.</span>
+        </div>
+        <div class="field" id="f-backup-po">
+          <label>Backup Process Owner</label>
+          <input type="text" id="backup-po" placeholder="Optional secondary contact">
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Initiative -->
+    <div class="step-page" id="step-2">
+      <div class="step-title">Initiative Details</div>
+      <div class="step-subtitle">Describe the problem you want to solve and the opportunity you see.</div>
+
+      <div class="field-group cols1">
+        <div class="field" id="f-title">
+          <label>Initiative Title <span class="req">*</span></label>
+          <input type="text" id="title" placeholder="Short, descriptive name for your idea (e.g., 'Automated Seed Yield Reporting')">
+          <span class="field-error">Please provide a title.</span>
+        </div>
+      </div>
+
+      <div class="field-group cols1">
+        <div class="field" id="f-problem">
+          <label>Problem Statement <span class="req">*</span></label>
+          <textarea id="problem" placeholder="Describe the current pain point, inefficiency, or opportunity. Be specific — what happens today, and why is it a problem? (min. 50 characters)"></textarea>
+          <span class="field-error">Please describe the problem (min. 50 chars).</span>
+        </div>
+      </div>
+
+      <div class="field-group cols1">
+        <div class="field" id="f-objectives-outcomes">
+          <label>Key Objectives &amp; Desired Outcomes</label>
+          <textarea id="objectives-outcomes" placeholder="What does success look like? What are the main results you aim to achieve? (e.g., Eliminate manual data entry, reduce report cycle from 3 days to same-day, improve data accuracy to 99%+)" style="min-height:88px"></textarea>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field" id="f-frequency">
+          <label>Frequency of Problem <span class="req">*</span></label>
+          <select id="frequency">
+            <option value="">Select…</option>
+            <option>Multiple times per day</option>
+            <option>Daily</option>
+            <option>Weekly</option>
+            <option>Monthly</option>
+            <option>Ad-hoc / Occasional</option>
+          </select>
+          <span class="field-error">Required.</span>
+        </div>
+        <div class="field" id="f-users">
+          <label>Users Affected <span class="req">*</span></label>
+          <select id="users">
+            <option value="">Select…</option>
+            <option>1–5 users</option>
+            <option>6–20 users</option>
+            <option>21–100 users</option>
+            <option>100+ users / site-wide</option>
+            <option>Multiple sites</option>
+          </select>
+          <span class="field-error">Required.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STEP 3: Impact -->
+    <div class="step-page" id="step-3">
+      <div class="step-title">Impact &amp; Classification</div>
+      <div class="step-subtitle">Help us understand the expected value and technology fit.</div>
+
+      <div style="margin-bottom:14px">
+        <div class="field-group cols1" style="margin-bottom:6px">
+          <div class="field">
+            <label>Benefit Categories <span class="req">*</span> <span class="field-hint">(select all that apply)</span></label>
+          </div>
+        </div>
+        <div class="benefit-grid" id="benefit-grid">
+          <div class="benefit-item"><input type="checkbox" id="b1" value="Time Savings"><label for="b1"><span class="bicon">⏱️</span> Time Savings</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b2" value="Cost Reduction"><label for="b2"><span class="bicon">💰</span> Cost Reduction</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b3" value="Quality Improvement"><label for="b3"><span class="bicon">✅</span> Quality</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b4" value="Risk Reduction"><label for="b4"><span class="bicon">🛡️</span> Risk Reduction</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b5" value="Compliance"><label for="b5"><span class="bicon">📋</span> Compliance</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b6" value="Employee Experience"><label for="b6"><span class="bicon">😊</span> Employee Exp.</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b7" value="Speed to Market"><label for="b7"><span class="bicon">🚀</span> Speed to Market</label></div>
+          <div class="benefit-item"><input type="checkbox" id="b8" value="Data & Insights"><label for="b8"><span class="bicon">📊</span> Data &amp; Insights</label></div>
+        </div>
+        <span class="field-error" id="benefit-error" style="display:none">Please select at least one benefit category.</span>
+      </div>
+
+      <div class="field-group cols1">
+        <div class="field" id="f-impact-quant">
+          <label>Quantified Impact Estimate</label>
+          <input type="text" id="impact-quant" placeholder="e.g., ~4 hrs/week saved per operator × 12 operators = ~2,500 hrs/year">
+          <span class="field-hint">Rough estimates are welcome — CoE will validate during triage.</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-size:0.74rem;font-weight:600;color:var(--text-muted);margin-bottom:8px">Estimated Complexity Tier <span style="color:var(--green)">*</span></div>
+        <div class="tier-selector">
+          <div class="tier-option">
+            <input type="radio" name="tier" id="t1" value="Tier 1 — Quick Win">
+            <label for="t1">
+              <div class="tier-opt-name" style="color:#40cc80">🟢 Tier 1</div>
+              <div class="tier-opt-hint">Quick Win · 1–4 weeks · Self-service</div>
+            </label>
+          </div>
+          <div class="tier-option">
+            <input type="radio" name="tier" id="t2" value="Tier 2 — Core Innovation">
+            <label for="t2">
+              <div class="tier-opt-name" style="color:#60a8ff">🔵 Tier 2</div>
+              <div class="tier-opt-hint">Core Innovation · 4–12 weeks · Specialist team</div>
+            </label>
+          </div>
+          <div class="tier-option">
+            <input type="radio" name="tier" id="t3" value="Tier 3 — Strategic Bet">
+            <label for="t3">
+              <div class="tier-opt-name" style="color:#f87171">🔴 Tier 3</div>
+              <div class="tier-opt-hint">Strategic Bet · 3–12 months · Stage-Gate</div>
+            </label>
+          </div>
+        </div>
+        <span class="field-error" id="tier-error" style="display:none">Please select an estimated tier.</span>
+      </div>
+
+      <div class="field-group cols1">
+        <div class="field">
+          <label>Supporting Documents / Links</label>
+          <input type="text" id="docs" placeholder="SharePoint link, process flow, screenshot URL (optional)">
+          <span class="field-hint">Any attachments that help describe the current state.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Review -->
+    <div class="step-page" id="step-4">
+      <div class="step-title">Review &amp; Submit</div>
+      <div class="step-subtitle">Please review your submission before sending it to the CoE for triage.</div>
+
+      <div class="review-section">
+        <div class="review-section-header">Requester Information</div>
+        <div class="review-rows">
+          <div class="review-row"><div class="rr-key">Name</div><div class="rr-val" id="rv-name">—</div></div>
+          <div class="review-row"><div class="rr-key">Email</div><div class="rr-val" id="rv-email">—</div></div>
+          <div class="review-row"><div class="rr-key">Business Unit</div><div class="rr-val" id="rv-bu">—</div></div>
+          <div class="review-row"><div class="rr-key">Site</div><div class="rr-val" id="rv-site">—</div></div>
+          <div class="review-row"><div class="rr-key">Process Owner</div><div class="rr-val" id="rv-po">—</div></div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <div class="review-section-header">Initiative Details</div>
+        <div class="review-rows">
+          <div class="review-row"><div class="rr-key">Title</div><div class="rr-val" id="rv-title">—</div></div>
+          <div class="review-row"><div class="rr-key">Problem Statement</div><div class="rr-val" id="rv-problem" style="white-space:pre-wrap">—</div></div>
+          <div class="review-row"><div class="rr-key">Frequency</div><div class="rr-val" id="rv-freq">—</div></div>
+          <div class="review-row"><div class="rr-key">Users Affected</div><div class="rr-val" id="rv-users">—</div></div>
+        </div>
+      </div>
+
+      <div class="review-section">
+        <div class="review-section-header">Impact &amp; Classification</div>
+        <div class="review-rows">
+          <div class="review-row"><div class="rr-key">Benefits</div><div class="rr-val" id="rv-benefits">—</div></div>
+          <div class="review-row"><div class="rr-key">Impact Estimate</div><div class="rr-val" id="rv-impact">—</div></div>
+          <div class="review-row"><div class="rr-key">Est. Tier</div><div class="rr-val" id="rv-tier">—</div></div>
+        </div>
+      </div>
+
+      <div class="confirm-box">
+        <input type="checkbox" id="confirm-check">
+        <label for="confirm-check">
+          I confirm that the information above is accurate to the best of my knowledge, and I consent to the Pathfinders CoE using this data to evaluate and develop this initiative in line with Bayer's data governance policies.
+        </label>
+      </div>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">🎉</div>
+      <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:8px">Idea Submitted!</h2>
+      <div class="success-id" id="success-id">PF-2026-XXXX</div>
+      <p class="success-msg">Your idea has been received by the Pathfinders CoE. Here's what happens next:</p>
+      <div class="success-steps">
+        <div class="ss-item"><div class="ss-num">1</div><div class="ss-text"><strong>Within 5 business days:</strong> CoE reviews and triages your submission</div></div>
+        <div class="ss-item"><div class="ss-num">2</div><div class="ss-text"><strong>IRB Monthly Review:</strong> Eligible ideas are scored and approved by the board</div></div>
+        <div class="ss-item"><div class="ss-num">3</div><div class="ss-text"><strong>You'll be notified</strong> with outcome and next steps via email</div></div>
+      </div>
+      <button class="btn btn-new" onclick="resetForm()">Submit Another Idea</button>
+    </div>
+
+  </div><!-- /form-area -->
+
+  <!-- Footer actions -->
+  <div class="form-footer" id="form-footer">
+    <div class="ff-step-info" id="step-info">Step 1 of 4</div>
+    <div class="ff-btns">
+      <button class="btn btn-ghost" id="btn-back" onclick="prevStep()" style="display:none">← Back</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Next →</button>
+    </div>
+  </div>
+
+</div><!-- /form-shell -->
+
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+function goToStep(n) {
+  if (n > currentStep) return; // only allow going back via click
+  currentStep = n;
+  renderStep();
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep === totalSteps) { submitForm(); return; }
+  currentStep++;
+  renderStep();
+}
+
+function prevStep() {
+  if (currentStep > 1) { currentStep--; renderStep(); }
+}
+
+function renderStep() {
+  for (let i = 1; i <= totalSteps; i++) {
+    const page = document.getElementById('step-' + i);
+    const ind = document.getElementById('si-' + i);
+    page.classList.toggle('active', i === currentStep);
+    ind.classList.remove('active', 'done');
+    if (i === currentStep) ind.classList.add('active');
+    else if (i < currentStep) ind.classList.add('done');
+  }
+  document.getElementById('step-info').textContent = 'Step ' + currentStep + ' of ' + totalSteps;
+  document.getElementById('btn-back').style.display = currentStep > 1 ? '' : 'none';
+  document.getElementById('btn-next').textContent = currentStep === totalSteps ? '✔ Submit Idea' : 'Next →';
+  document.getElementById('btn-next').disabled = false;
+  if (currentStep === totalSteps) buildReview();
+  document.getElementById('form-area').scrollTop = 0;
+}
+
+function validateStep(s) {return true;
+  let ok = true;
+  if (s === 1) {
+    ok = req('submitter-name') && reqEmail('submitter-email') && reqSel('bu') && reqSel('site') && req('process-owner') && ok;
+  } else if (s === 2) {
+    ok = req('title') && reqMin('problem', 50) && reqSel('frequency') && reqSel('users') && ok;
+  } else if (s === 3) {
+    const bens = document.querySelectorAll('#benefit-grid input:checked');
+    if (bens.length === 0) { document.getElementById('benefit-error').style.display = 'block'; ok = false; }
+    else document.getElementById('benefit-error').style.display = 'none';
+    const tier = document.querySelector('input[name="tier"]:checked');
+    if (!tier) { document.getElementById('tier-error').style.display = 'block'; ok = false; }
+    else document.getElementById('tier-error').style.display = 'none';
+  } else if (s === 4) {
+    if (false && !document.getElementById('confirm-check').checked) {
+      alert('Please confirm the declaration before submitting.'); ok = false;
+    }
+  }
+  return ok;
+}
+
+function req(id) {
+  const el = document.getElementById(id); const f = document.getElementById('f-' + id);
+  const v = el.value.trim(); if (f) f.classList.toggle('has-error', !v);
+  return !!v;
+}
+function reqEmail(id) {
+  const el = document.getElementById(id); const f = document.getElementById('f-' + id);
+  const v = el.value.trim(); const ok = v && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  if (f) f.classList.toggle('has-error', !ok); return ok;
+}
+function reqSel(id) {
+  const el = document.getElementById(id); const f = document.getElementById('f-' + id);
+  const ok = !!el.value; if (f) f.classList.toggle('has-error', !ok); return ok;
+}
+function reqMin(id, min) {
+  const el = document.getElementById(id); const f = document.getElementById('f-' + id);
+  const ok = el.value.trim().length >= min; if (f) f.classList.toggle('has-error', !ok); return ok;
+}
+
+function buildReview() {
+  const v = (id) => { const el = document.getElementById(id); return el ? (el.value.trim() || '—') : '—'; };
+  document.getElementById('rv-name').textContent = v('submitter-name');
+  document.getElementById('rv-email').textContent = v('submitter-email');
+  document.getElementById('rv-bu').textContent = v('bu');
+  document.getElementById('rv-site').textContent = v('site');
+  document.getElementById('rv-po').textContent = v('process-owner');
+  document.getElementById('rv-title').textContent = v('title');
+  document.getElementById('rv-problem').textContent = v('problem');
+  document.getElementById('rv-freq').textContent = v('frequency');
+  document.getElementById('rv-users').textContent = v('users');
+  const bens = [...document.querySelectorAll('#benefit-grid input:checked')].map(b => b.value).join(', ');
+  document.getElementById('rv-benefits').textContent = bens || '—';
+  document.getElementById('rv-impact').textContent = v('impact-quant');
+  const tier = document.querySelector('input[name="tier"]:checked');
+  document.getElementById('rv-tier').textContent = tier ? tier.value : '—';
+}
+
+function submitForm() {
+  const id = 'PF-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 8999);
+  document.getElementById('success-id').textContent = id;
+  for (let i = 1; i <= totalSteps; i++) { document.getElementById('step-' + i).classList.remove('active'); }
+  document.getElementById('success-screen').classList.add('active');
+  document.getElementById('form-footer').style.display = 'none';
+  document.querySelector('.progress-bar-wrap').style.display = 'none';
+}
+
+function resetForm() {
+  document.getElementById('success-screen').classList.remove('active');
+  document.getElementById('form-footer').style.display = '';
+  document.querySelector('.progress-bar-wrap').style.display = '';
+  document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(el => el.value = '');
+  document.querySelectorAll('select').forEach(el => el.value = '');
+  document.querySelectorAll('textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.querySelectorAll('.has-error').forEach(el => el.classList.remove('has-error'));
+  currentStep = 1; renderStep();
+}
+</script>
+</body>
+</html>
