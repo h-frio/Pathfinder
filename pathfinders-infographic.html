@@ -326,7 +326,7 @@ footer span { color: var(--green); }
 .modal-overlay.open { display: flex; }
 .modal-box {
   background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2);
-  width: min(940px, 96vw); height: min(88vh, 720px);
+  width: 95vw; height: 95vh;
   display: flex; flex-direction: column; overflow: hidden;
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
@@ -343,6 +343,8 @@ footer span { color: var(--green); }
 }
 .modal-close-btn:hover { background: var(--bg4); color: var(--text); }
 .modal-box iframe { flex: 1; border: none; width: 100%; background: var(--bg); }
+.modal-back-btn { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 500; padding: 5px 12px; border-radius: 6px; cursor: pointer; background: var(--bg3); border: 1px solid var(--border); color: var(--text-muted); transition: all var(--ease); }
+.modal-back-btn:hover { background: var(--bg4); color: var(--text); }
 
 /* SCROLL REVEAL */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
@@ -524,7 +526,7 @@ footer span { color: var(--green); }
       </div>
       <div class="pdp-cards">
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📣</span> Innovation Campaigns</div><div class="pdp-card-text">Quarterly themed campaigns with internal case studies, hackathons, and innovation showcases to build awareness and excitement.</div></div>
-        <a href="digital-literacy-trail.html" target="_blank" class="pdp-card pdp-card-link"><div class="pdp-card-title"><span class="icon">🎓</span> Digital Literacy Training <span class="pdp-link-badge">Explore →</span></div><div class="pdp-card-text">Modular learning paths covering AI, RPA, LLMs, ML, and analytics — tailored by role and business unit.</div></a>
+        <div class="pdp-card pdp-card-link" onclick="openModal('digital-literacy-trail.html','🎓 Digital Literacy Training')" style="cursor:pointer;"><div class="pdp-card-title"><span class="icon">🎓</span> Digital Literacy Training <span class="pdp-link-badge">Explore →</span></div><div class="pdp-card-text">Modular learning paths covering AI, RPA, LLMs, ML, and analytics — tailored by role and business unit.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">👥</span> Innovation Champion Network</div><div class="pdp-card-text">Dedicated ambassadors per business unit trained to coach peers, identify opportunities, and assist with submissions.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📚</span> Use Case Library</div><div class="pdp-card-text">Searchable repository of implemented solutions across Bayer, with ROI data, tech stack, and lessons learned.</div></div>
       </div>
@@ -548,8 +550,6 @@ footer span { color: var(--green); }
           </div>
           <div class="pdp-card-text">≤10 structured fields: problem, proposed solution, business impact, technology type (RPA / AI / ML / LLM / Analytics / Process), and urgency.</div>
         </div>
-        <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📡</span> Multiple Entry Channels</div><div class="pdp-card-text">Digital portal (ServiceNow/SharePoint), QR codes, Champion-assisted submission, themed innovation campaigns.</div></div>
-        <div class="pdp-card"><div class="pdp-card-title"><span class="icon">🔍</span> Deduplication &amp; Clustering</div><div class="pdp-card-text">Weekly CoE review identifies duplicate or complementary ideas. AI-assisted semantic matching for large volumes.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📊</span> Pipeline Visibility</div><div class="pdp-card-text">Real-time Power BI dashboard showing all ideas by status, tier, BU, and technology type for full portfolio transparency.</div></div>
       </div>
     </div>
@@ -621,7 +621,7 @@ footer span { color: var(--green); }
       <div class="pdp-cards">
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">💰</span> Value Measurement</div><div class="pdp-card-text">Quantified benefit tracking: hours saved, cost reductions, error rate improvements, compliance uplift vs. approved business case.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📊</span> Quarterly Value Reports</div><div class="pdp-card-text">Steering Committee and Leadership receive consolidated portfolio value report with ROI, adoption data, and strategic impact.</div></div>
-        <a href="pathfinders-recognition.html" target="_blank" rel="noopener noreferrer" class="pdp-card pdp-card-link" style="display:block;text-decoration:none;color:inherit;border-color:rgba(245,158,11,0.3);" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.06)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(245,158,11,0.2)'" onmouseout="this.style.borderColor='rgba(245,158,11,0.3)';this.style.background='';this.style.transform='';this.style.boxShadow=''"><div class="pdp-card-title" style="color:#f59e0b;"><span class="icon">🏆</span> AI Recognition Hub <span class="pdp-link-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">Explore &#8594;</span></div><div class="pdp-card-text">Belts, Impact Awards e recognition tracks para cada contribuidor. Clique para explorar todos os níveis, requisitos e premiações.</div></a>
+        <div class="pdp-card pdp-card-link" onclick="openModal('pathfinders-recognition.html','🏆 AI Recognition Hub')" style="cursor:pointer;border-color:rgba(245,158,11,0.3);" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.06)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(245,158,11,0.2)'" onmouseout="this.style.borderColor='rgba(245,158,11,0.3)';this.style.background='';this.style.transform='';this.style.boxShadow=''"><div class="pdp-card-title" style="color:#f59e0b;"><span class="icon">🏆</span> AI Recognition Hub <span class="pdp-link-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">Explore &#8594;</span></div><div class="pdp-card-text">Belts, Impact Awards e recognition tracks para cada contribuidor. Clique para explorar todos os níveis, requisitos e premiações.</div></div>
         <div class="pdp-card"><div class="pdp-card-title"><span class="icon">📖</span> Success Story Library</div><div class="pdp-card-text">Case studies published internally to inspire the next wave of submissions and demonstrate concrete program impact.</div></div>
       </div>
     </div>
@@ -996,10 +996,13 @@ footer span { color: var(--green); }
 <div class="modal-overlay" id="modal" onclick="handleOverlay(event)">
   <div class="modal-box">
     <div class="modal-bar">
-      <div class="modal-bar-title">📋 Smart Intake Form — Submit Your AI Idea</div>
-      <div class="modal-close-btn" onclick="closeModal()">✕</div>
+      <div class="modal-bar-title" id="modal-title">📋 Smart Intake Form — Submit Your AI Idea</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="modal-back-btn" onclick="closeModal()">← Back to Infographic</button>
+        <div class="modal-close-btn" onclick="closeModal()" title="Close">✕</div>
+      </div>
     </div>
-    <iframe src="pathfinders-intake-form.html" title="Smart Intake Form"></iframe>
+    <iframe id="modal-iframe" src="pathfinders-intake-form.html" title="Smart Intake Form"></iframe>
   </div>
 </div>
 
@@ -1028,7 +1031,16 @@ function switchKpi(btn, id) {
 }
 
 // Modal
-function openModal() {
+function openModal(url, title) {
+  var iframe = document.getElementById('modal-iframe');
+  var titleEl = document.getElementById('modal-title');
+  if (url) {
+    iframe.src = url;
+    titleEl.textContent = title || url;
+  } else {
+    iframe.src = 'pathfinders-intake-form.html';
+    titleEl.textContent = '📋 Smart Intake Form — Submit Your AI Idea';
+  }
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
